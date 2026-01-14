@@ -149,7 +149,7 @@ def get_experiments_round_results(model):
     eva = res_tot_a["successes"] / res_tot_a["trials"] if res_tot_a["trials"] > 0 else 0
     evb = res_tot_b["successes"] / res_tot_b["trials"] if res_tot_b["trials"] > 0 else 0
     return solara.Markdown(
-        f"STEP:<br>Number of experiments for A: {res_round_a["trials"]} with {res_round_a["successes"]} successes <br>Number of experiments for B: {res_round_b["trials"]} with {res_round_b["successes"]} successes<br>TOTAL:<br>Total number of experiments for A: {res_tot_a["trials"]} with {res_tot_a["successes"]} successes<br>Total number of experiments for B: {res_tot_b["trials"]} with {res_tot_b["successes"]} successes<br>Evidence based A = {eva}<br>Evidence based B = {evb}"
+        f"STEP:<br>Number of experiments for A: {res_round_a['trials']} with {res_round_a['successes']} successes <br>Number of experiments for B: {res_round_b['trials']} with {res_round_b['successes']} successes<br>TOTAL:<br>Total number of experiments for A: {res_tot_a['trials']} with {res_tot_a['successes']} successes<br>Total number of experiments for B: {res_tot_b['trials']} with {res_tot_b['successes']} successes<br>Evidence based A = {eva}<br>Evidence based B = {evb}"
     ) 
 
 

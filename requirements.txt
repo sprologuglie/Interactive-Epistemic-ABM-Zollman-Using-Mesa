@@ -1,5 +1,5 @@
 # Core ABM + dashboard
-mesa
+mesa>=3.2.0,<3.4.0
 solara
 networkx
 numpy
