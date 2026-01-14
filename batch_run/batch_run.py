@@ -276,7 +276,7 @@ batch_run_results = mesa.batch_run(
     Bandit,
     parameters= parameters_batch_run,
     iterations=100,
-    max_steps=1000
+    max_steps=10000
 )
 
 batch_run_results_df = pd.DataFrame(batch_run_results)
