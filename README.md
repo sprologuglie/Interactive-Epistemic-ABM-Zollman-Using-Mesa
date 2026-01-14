@@ -87,8 +87,8 @@ Agent belief representation (per theory)
 
   Each Scientist holds four Beta parameters:
 
-    for A: a_alpha, a_beta
-    for B: b_alpha, b_beta
+  for A: a_alpha, a_beta
+  for B: b_alpha, b_beta
 
 Expected success estimates:
 
@@ -102,17 +102,17 @@ Choice rule (state)
 
 One model step (one “round”):
 
-  Collect data (datacollector)
+Collect data (datacollector)
 
-  All agents research:
+All agents research:
 
-    pick the currently preferred arm (A or B),
+  pick the currently preferred arm (A or B),
 
-    generate results: success ~ Binomial(n=step_pulls, p=objective_prob) (objective_prob depends on which arm was pulled).
+  generate results: success ~ Binomial(n=step_pulls, p=objective_prob) (objective_prob depends on which arm was pulled).
 
-    If enabled: dynamic success update (Update_Objectives)
+  If enabled: dynamic success update (Update_Objectives)
 
-    If enabled: critical interaction update (critical_interaction)
+  If enabled: critical interaction update (critical_interaction)
 
 All agents update beliefs:
 
