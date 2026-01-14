@@ -24,7 +24,7 @@ For more info about the model and the parameters read the next sections.
 - **Interactive notebook (Binder):** 
   open `interactive_model.ipynb` 
 
-  [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa./main?urlpath=lab/tree/interactive_model.ipynb)
+  [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa/main?urlpath=lab/tree/interactive_model.ipynb)
 
 
 ### Run locally (recommended for the interactive dashboard)
@@ -44,7 +44,7 @@ Solara will print a local URL (typically `http://localhost:8765`). Open it in yo
 - **Batch runs notebook (Binder):** 
   open `batch_run/batch_run.ipynb`
     
-  [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa./main?urlpath=lab/tree/batch_run/batch_run.ipynb)
+  [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa/main?urlpath=lab/tree/batch_run/batch_run.ipynb)
 
 ### Script
 Modify the parameters, the number of iterations and the max_steps, the kind of graph desired and then batch run the simulations. Outputs will be shown in a graph, to store them in a csv file uncomment the last part
