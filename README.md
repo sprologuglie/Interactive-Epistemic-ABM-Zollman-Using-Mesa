@@ -15,26 +15,32 @@ This repo is intentionally lightweight: just scripts you can run.
 ### How it works
 You can modify the parameters trough the panel on the left, then press restart to apply changes. Then let the model run continuously with the play button or for a single step with the step button.
 
-**NB If you don't press Restart before starting the model the parameters won't change**
+**NB If you don't press Restart before starting the model the parameters won't change**.
+
 For more info about the model and the parameters read the next sections.
 
 
 ### Try it in your browser (no install)
 
 - **Interactive notebook (Binder):** 
+Click on Launch Binder, then wait for the server to be started. **Run the model cell and click on the fullscreen button.** Follow the instruction above (How it works)
+
   open `interactive_model.ipynb` 
 
   [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa/main?urlpath=lab/tree/interactive_model.ipynb)
 
 
 ### Run locally (recommended for the interactive dashboard)
+
+Download the repo and on you terminal write
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 solara run interactive_model.py
 ```
-Solara will print a local URL (typically `http://localhost:8765`). Open it in your browser.
+Solara will print a local URL (typically `http://localhost:8765`). Open it in your browser. Follow the instruction above (How it works)
 
 
 ## Batch runs (headless)
@@ -42,9 +48,13 @@ Solara will print a local URL (typically `http://localhost:8765`). Open it in yo
 ### Try it in your browser (no install)
 
 - **Batch runs notebook (Binder):** 
+Click on Launch Binder, then wait for the server to be started.
+
   open `batch_run/batch_run.ipynb`
     
   [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa/main?urlpath=lab/tree/batch_run/batch_run.ipynb)
+
+  Once Binder has started the server, follow the instruction below (Notebook)
 
 ### Script
 Modify the parameters, the number of iterations and the max_steps, the kind of graph desired and then batch run the simulations. Outputs will be shown in a graph, to store them in a csv file uncomment the last part
