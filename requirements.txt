@@ -1,0 +1,17 @@
+# Core ABM + dashboard
+mesa
+solara
+networkx
+numpy
+pandas
+matplotlib
+altair
+
+#Graphs and csv export
+seaborn
+pathlib
+
+# Notebooks
+jupyterlab
+notebook
+
