@@ -49,8 +49,6 @@ Solara will print a local URL (typically `http://localhost:8765`). Open it in yo
 
 - **Batch runs notebook (Binder):** 
 Click on Launch Binder, then wait for the server to be started.
-
-  open `batch_run/batch_run.ipynb`
     
   [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa/main?urlpath=lab/tree/batch_run/batch_run.ipynb)
 
@@ -67,141 +65,141 @@ Default settings reproduce the Zollman effect.
 ## What kind of model this is (and how it connects to the three papers)
 This is a networked two-armed bandit model of scientific inquiry:
 
-  There are two rival “theories/methods”: A (true) and B (false).
+  - There are two rival “theories/methods”: A (true) and B (false).
 
-  Each agent (a “Scientist”) has Bayesian beliefs about each theory’s success rate, represented with Beta priors (α, β). Updating is done by adding successes to α and failures to β (conjugacy), and the expected success rate is α/(α+β).
+  - Each agent (a “Scientist”) has Bayesian beliefs about each theory’s success rate, represented with Beta priors (α, β). Updating is done by adding successes to α and failures to β (conjugacy), and the expected success rate is α/(α+β).
 
-  Agents are myopic exploiters: in each round they choose whichever action currently has the higher expected payoff and performs some experiments (Bernoulli trials) on the preffered arm of the bandit.
+  - Agents are myopic exploiters: in each round they choose whichever action currently has the higher expected payoff and performs some experiments (Bernoulli trials) on the preffered arm of the bandit.
 
-  Agents sit on a communication network (which can be a complete, wheel or cycle graph), and after each round they update their beliefs using their own evidence + their neighbors’ evidence.
+  - Agents sit on a communication network (which can be a complete, wheel or cycle graph), and after each round they update their beliefs using their own evidence + their neighbors’ evidence.
 
 ### General structure and how one simulation run works
 Entities:
 
-  Model: Bandit (Mesa Model)
+  - Model: Bandit (Mesa Model)
 
-  Agents: Scientist (Mesa FixedAgent) placed on a Network grid (NetworkX graph) 
+  - Agents: Scientist (Mesa FixedAgent) placed on a Network grid (NetworkX graph) 
 
 
 Agent belief representation (per theory)
 
-  Each Scientist holds four Beta parameters:
+  - Each Scientist holds four Beta parameters:
 
-  for A: a_alpha, a_beta
-  for B: b_alpha, b_beta
+    - for A: a_alpha, a_beta
+    - for B: b_alpha, b_beta
 
 Expected success estimates:
 
-  E[A] = a_alpha / (a_alpha + a_beta)
+  - E[A] = a_alpha / (a_alpha + a_beta)
 
-  E[B] = b_alpha / (b_alpha + b_beta)
+  - E[B] = b_alpha / (b_alpha + b_beta)
 
 Choice rule (state)
 
-  Each agent has a discrete state in { "a", "b" }: Choose A if E[A] > E[B], else choose B. 
+  - Each agent has a discrete state in { "a", "b" }: Choose A if E[A] > E[B], else choose B. 
 
 One model step (one “round”):
 
-Collect data (datacollector)
+  - Collect data (datacollector)
 
-All agents research:
+  -  All agents research:
 
-  pick the currently preferred arm (A or B),
+      - pick the currently preferred arm (A or B),
 
-  generate results: success ~ Binomial(n=step_pulls, p=objective_prob) (objective_prob depends on which arm was pulled).
+      - generate results: success ~ Binomial(n=step_pulls, p=objective_prob) (objective_prob depends on which arm was pulled).
 
-  If enabled: dynamic success update (Update_Objectives)
+      - If enabled: dynamic success update (Update_Objectives)
 
-  If enabled: critical interaction update (critical_interaction)
+      - If enabled: critical interaction update (critical_interaction)
 
-All agents update beliefs:
+  -  All agents update beliefs:
 
-  incorporate own results,
+      - incorporate own results,
 
-  incorporate neighbors’ results,
+      - incorporate neighbors’ results,
 
-  possibly switch state, subject to theory-threshold and inertia.
+      - possibly switch state, subject to theory-threshold and inertia.
 
-Agents clean their stored result tuple
+  - Agents clean their stored result tuple
 
-Model updates round counter and checks convergence (everyone on A or everyone on B), storing the consensus round
+  - Model updates round counter and checks convergence (everyone on A or everyone on B), storing the consensus round
 
 ### Model-level parameters
 
 These are the knobs you pass when constructing the model. 
 
-n (default 10)
-  Meaning: number of scientists (agents).
+- n (default 10)
+  - Meaning: number of scientists (agents).
 
-a_objective (default 0.5)
-  Meaning: the “ground truth” success probability when pulling arm A (unless later modified by dynamic / criticism).
-  Role: sets how good theory A actually is, i.e., the Bernoulli/binomial parameter for A-generated data. 
+- a_objective (default 0.5)
+  - Meaning: the “ground truth” success probability when pulling arm A (unless later modified by dynamic / criticism).
+  - Role: sets how good theory A actually is, i.e., the Bernoulli/binomial parameter for A-generated data. 
 
-b_objective (default 0.499)
-  Meaning: ground truth success probability for arm B (again, unless modified).
-  Role: together with a_objective, determines how easy it is to tell the theories apart. If very close, inquiry is “hard”.
+- b_objective (default 0.499)
+  - Meaning: ground truth success probability for arm B (again, unless modified).
+  - Role: together with a_objective, determines how easy it is to tell the theories apart. If very close, inquiry is “hard”.
 
-max_priors (default 4)
-  Meaning: upper bound for the initial random Beta parameters α and β (drawn uniformly from (ε, max_priors)).
-  Role: controls how “strong/extreme” initial priors can be on average. Initial α/β ranges affect resistance to early evidence and diversity retention.
+- max_priors (default 4)
+  - Meaning: upper bound for the initial random Beta parameters α and β (drawn uniformly from (ε, max_priors)).
+  - Role: controls how “strong/extreme” initial priors can be on average. Initial α/β ranges affect resistance to early evidence and diversity retention.
   
 
-graph (default "complete"; allowed: "complete", "wheel", "cycle")
-  Meaning: network topology used for communication.
-  Role: this is the central “connectedness” variable in all three papers (complete vs sparser graphs).
+- graph (default "complete"; allowed: "complete", "wheel", "cycle")
+  - Meaning: network topology used for communication.
+  - Role: this is the central “connectedness” variable in all three papers (complete vs sparser graphs).
 
-step_pulls (default 1000)
-  Meaning: number of Bernoulli trials per round per agent (the n in the Binomial(n, p)).
-  Role: controls evidence volume per round. Smaller values make inquiry harder and amplify the chance of misleading streaks. It is one of Rosenstock’s key drivers of when connectivity matters.
+- step_pulls (default 1000)
+  - Meaning: number of Bernoulli trials per round per agent (the n in the Binomial(n, p)).
+  - Role: controls evidence volume per round. Smaller values make inquiry harder and amplify the chance of misleading streaks. It is one of Rosenstock’s key drivers of when connectivity matters.
 
-theory_treshold (default False)
-  Meaning:
-    if True → each agent uses a fixed threshold value of 0.1
-    if False → threshold is 0
-  Role: implements a switching margin / indifference interval: an agent sticks with the current theory unless the alternative is better by more than the threshold (in code: it compares E[current] + threshold > E[other]). This corresponds to Frey–Šešelja’s “interval within which theories count as equally good.”
+- theory_treshold (default False)
+  - Meaning:
+    - if True → each agent uses a fixed threshold value of 0.1
+    - if False → threshold is 0
+  - Role: implements a switching margin / indifference interval: an agent sticks with the current theory unless the alternative is better by more than the threshold (in code: it compares E[current] + threshold > E[other]). This corresponds to Frey–Šešelja’s “interval within which theories count as equally good.”
 
-dynamic (default False)
-  Meaning: toggles Update_Objectives.
-  Role: implements dynamic epistemic success: every 100 rounds A is nudged upward toward 1 and B downward toward 0 (small increments of size ≈1/1000 of the remaining distance). This parallels Frey–Šešelja’s move from static to dynamic success assumptions.
+- dynamic (default False)
+  - Meaning: toggles Update_Objectives.
+  - Role: implements dynamic epistemic success: every 100 rounds A is nudged upward toward 1 and B downward toward 0 (small increments of size ≈1/1000 of the remaining distance). This parallels Frey–Šešelja’s move from static to dynamic success assumptions.
 
-criticism (default False)
-  Meaning: toggles critical_interaction.
-  Role: implements a form of critical interaction inspired by Frey–Šešelja: neighbors’ evidence can trigger a small change to the objective parameters. (In this specific code, the “criticism” rule adjusts objectives in the direction hard-coded in the function—so it’s best read as “a parameterized interaction effect on success rates” rather than a purely epistemic update rule.)
+- criticism (default False)
+  - Meaning: toggles critical_interaction.
+  - Role: implements a form of critical interaction inspired by Frey–Šešelja: neighbors’ evidence can trigger a small change to the objective parameters. (In this specific code, the “criticism” rule adjusts objectives in the direction hard-coded in the function—so it’s best read as “a parameterized interaction effect on success rates” rather than a purely epistemic update rule.)
 
-inertia (default 0)
-  Meaning: number of consecutive “rounds of being outvoted by evidence” required before an agent actually switches.
-  Role: implements Frey–Šešelja’s “rational inertia”: agents don’t instantly flip when the other arm looks (slightly) better; they require sustained pressure (for a sufficient number of rounds).
+- inertia (default 0)
+  - Meaning: number of consecutive “rounds of being outvoted by evidence” required before an agent actually switches.
+  - Role: implements Frey–Šešelja’s “rational inertia”: agents don’t instantly flip when the other arm looks (slightly) better; they require sustained pressure (for a sufficient number of rounds).
 
 ### Other crucial variables to understand the model
 Inside each Scientist
 
-  priors: dict of four Beta parameters (a_alpha, a_beta, b_alpha, b_beta). 
+  - priors: dict of four Beta parameters (a_alpha, a_beta, b_alpha, b_beta). 
 
-  state: current preferred theory (“a” or “b”). 
+  - state: current preferred theory (“a” or “b”). 
 
-  experiment_result: a tuple (pull, success, trial) stored until updating is done; then reset. 
+  - experiment_result: a tuple (pull, success, trial) stored until updating is done; then reset. 
 
-  inertia_counter: how many consecutive rounds the agent has been “tempted” to switch but hasn’t yet. 
+  - inertia_counter: how many consecutive rounds the agent has been “tempted” to switch but hasn’t yet. 
 
-  dynamic_counter: counts rounds up to 100 to trigger objective drift. 
+  - dynamic_counter: counts rounds up to 100 to trigger objective drift. 
 
 
 Inside the Bandit model
 
-  round_counter: number of elapsed rounds. 
+  - round_counter: number of elapsed rounds. 
 
-  consensus_round: first round when everyone chooses the same arm (stored; reset if consensus flips). 
+  - consensus_round: first round when everyone chooses the same arm (stored; reset if consensus flips). 
 
-  check_previous_conv: tracks whether last consensus was on A or B to detect changes.
+  - check_previous_conv: tracks whether last consensus was on A or B to detect changes.
 
 ### Statistics in the dashboard
-In the graph of the left the nodes represent the agents and the edges the neighbors to which they are connected. The color of the node represents the the state of the agent (green if they prefer A, red if they prefer B).
+In the graph of the left the nodes represent the agents and the edges the neighbors to which they are connected. The color of the node represents the the state of the agent (green if they prefer A, red if they prefer B). <br>
 
-Below, the percentage of agents believing in A and B is present, togheter with and indication of the Consesus (reached or not reached) and the round in which the current consensus was established (or the current round if there is no consensus).
+Below, the percentage of agents believing in A and B is present, togheter with and indication of the Consesus (reached or not reached) and the round in which the current consensus was established (or the current round if there is no consensus). <br>
 
-In the graph on the right the *Avg A expectation* represent the mean of the expected outcome of A for all the agents. This metric shows how on average agents are far from the actual value of A, plotted as *A objective probability*. The same goes for B.
+In the graph on the right the *Avg A expectation* represent the mean of the expected outcome of A for all the agents. This metric shows how on average agents are far from the actual value of A, plotted as *A objective probability*. The same goes for B. <br>
 
-Below the results of the experiments of each round is shown, as well as the total evidence for both theories and their expectations based on evidence only.
+Below the results of the experiments of each round is shown, as well as the total evidence for both theories and their expectations based on evidence only. <br>
 
 
 ## Repository layout
