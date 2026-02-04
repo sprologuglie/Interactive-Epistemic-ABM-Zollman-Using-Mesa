@@ -23,7 +23,7 @@ For more info about the model and the parameters read the next sections.
 ### Try it in your browser (no install)
 
 - **Interactive notebook (Binder):** 
-Click on Launch Binder, then wait for the server to be started. **Run the model cell and click on the fullscreen button.** Follow the instruction above (How it works)
+Click on Launch Binder, then wait for the server to be started. **Run the model cell and click on the fullscreen button of the output.** Follow the instruction above (How it works)
 
   open `interactive_model.ipynb` 
 
@@ -57,7 +57,7 @@ Click on Launch Binder, then wait for the server to be started.
   Once Binder has started the server, follow the instruction below (Notebook)
 
 ### Script
-Modify the parameters, the number of iterations and the max_steps, the kind of graph desired and then batch run the simulations. Outputs will be shown in a graph, to store them in a csv file uncomment the last part
+Modify the parameters, the number of iterations and the max_steps, the kind of graph desired and then batch run the simulations. Outputs will be shown in a graph and stored in a csv file.
 Default settings reproduce the Zollman effect.
 
 ### Notebook

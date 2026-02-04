@@ -3,7 +3,9 @@ from mesa.discrete_space import Network, FixedAgent, CellCollection
 import random
 import numpy as np
 import networkx as nx
-   
+
+from .agent import Scientist
+
 ###                 MODEL                   ####
      
 def Count_Belief_a(model):

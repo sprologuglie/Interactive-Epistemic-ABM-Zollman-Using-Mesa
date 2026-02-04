@@ -1,12 +1,10 @@
-###                 AGENTS                  ###
-import mesa
-from mesa.discrete_space import Network, FixedAgent
-import numpy as np
-import networkx as nx
+from mesa.discrete_space import FixedAgent
 
+
+###                 AGENTS                  ###
 class Scientist(FixedAgent):
 
-    def __init__(self, model, cell, a_objective, b_objective, max_priors, theory_treshold, inertia, step_pulls, dynamic):
+    def __init__(self, model, cell, a_objective, b_objective, max_priors, theory_treshold, inertia, step_pulls):
         super().__init__(model)
         self.cell = cell
         self.a_objective = a_objective
@@ -16,7 +14,6 @@ class Scientist(FixedAgent):
         self.inertia = inertia
         self.inertia_counter = 0
         self.step_pulls = step_pulls
-        self.dynamic = dynamic
 
         #Prior beliefs of each agent
         epsilon = .000000000000000000001
@@ -33,6 +30,10 @@ class Scientist(FixedAgent):
         else:
             self.state = "b"
         
+        #Define the level of theory treshold of the agent
+        if self.theory_treshold == True: 
+            self.theory_treshold = 0.1
+        else: self.theory_treshold = 0
 
         self.dynamic_counter = 0
         
@@ -115,7 +116,7 @@ class Scientist(FixedAgent):
     
     def Update_Objectives(self):
         """Slightley modify the objective values to increase the one of the correct theory and diminish the one of the incorrect every 100 rounds"""
-        if self.dynamic_counter < self.dynamic:
+        if self.dynamic_counter < 100:
             self.dynamic_counter += 1
         else:
             self.dynamic_counter = 0
@@ -140,3 +141,4 @@ class Scientist(FixedAgent):
     def clean_results(self):
         self.experiment_result = (0, 0, 0)
             
+        
