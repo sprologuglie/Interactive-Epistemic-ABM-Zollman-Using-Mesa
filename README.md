@@ -23,7 +23,7 @@ For more info about the model and the parameters read the next sections.
 ### Try it in your browser (no install)
 
 - **Interactive notebook (Binder):** 
-Click on Launch Binder, then wait for the server to be started. **Run the model cell and click on the fullscreen button of the output.** Follow the instruction above (How it works)
+Click on Launch Binder, then wait for the server to be started. **Run the model cell and click on the fullscreen button of the output.** Follow the instruction above (### How it works)
 
   open `interactive_model.ipynb` 
 
@@ -143,7 +143,6 @@ These are the knobs you pass when constructing the model.
   - Meaning: upper bound for the initial random Beta parameters α and β (drawn uniformly from (ε, max_priors)).
   - Role: controls how “strong/extreme” initial priors can be on average. Initial α/β ranges affect resistance to early evidence and diversity retention.
   
-
 - graph (default "complete"; allowed: "complete", "wheel", "cycle")
   - Meaning: network topology used for communication.
   - Role: this is the central “connectedness” variable in all three papers (complete vs sparser graphs).
@@ -152,19 +151,17 @@ These are the knobs you pass when constructing the model.
   - Meaning: number of Bernoulli trials per round per agent (the n in the Binomial(n, p)).
   - Role: controls evidence volume per round. Smaller values make inquiry harder and amplify the chance of misleading streaks. It is one of Rosenstock’s key drivers of when connectivity matters.
 
-- theory_treshold (default False)
-  - Meaning:
-    - if True → each agent uses a fixed threshold value of 0.1
-    - if False → threshold is 0
+- theory_treshold (default None)
+  - Meaning: margin in which the agents don't switch theory even if the competing have an higher expectation
   - Role: implements a switching margin / indifference interval: an agent sticks with the current theory unless the alternative is better by more than the threshold (in code: it compares E[current] + threshold > E[other]). This corresponds to Frey–Šešelja’s “interval within which theories count as equally good.”
 
-- dynamic (default False)
-  - Meaning: toggles Update_Objectives.
-  - Role: implements dynamic epistemic success: every 100 rounds A is nudged upward toward 1 and B downward toward 0 (small increments of size ≈1/1000 of the remaining distance). This parallels Frey–Šešelja’s move from static to dynamic success assumptions.
+- dynamic (default None)
+  - Meaning: the number of rounds until agents do Update_Objectives. If it is None, the update does not take place.
+  - Role: implements dynamic epistemic success: every specified number of rounds A is nudged upward toward 1 and B downward toward 0 (small increments of size ≈1/1000 of the remaining distance). This parallels Frey–Šešelja’s move from static to dynamic success assumptions.
 
 - criticism (default False)
-  - Meaning: toggles critical_interaction.
-  - Role: implements a form of critical interaction inspired by Frey–Šešelja: neighbors’ evidence can trigger a small change to the objective parameters. (In this specific code, the “criticism” rule adjusts objectives in the direction hard-coded in the function—so it’s best read as “a parameterized interaction effect on success rates” rather than a purely epistemic update rule.)
+  - Meaning: toggles the agents' critical_interaction. If it is False, they don't.
+  - Role: implements a form of critical interaction inspired by Frey–Šešelja: neighbors’ evidence in favour of the competing theory can trigger a small change to the objective parameters (same as for dynamic).
 
 - inertia (default 0)
   - Meaning: number of consecutive “rounds of being outvoted by evidence” required before an agent actually switches.
@@ -181,7 +178,9 @@ Inside each Scientist
 
   - inertia_counter: how many consecutive rounds the agent has been “tempted” to switch but hasn’t yet. 
 
-  - dynamic_counter: counts rounds up to 100 to trigger objective drift. 
+  - dynamic_counter: counts rounds up to the specified number of rounds to trigger objective drift. 
+
+  - critical_interaction_counter: counts rounds up to the specified number of rounds to trigger critical interaction.
 
 
 Inside the Bandit model
@@ -193,6 +192,7 @@ Inside the Bandit model
   - check_previous_conv: tracks whether last consensus was on A or B to detect changes.
 
 ### Statistics in the dashboard
+
 In the graph of the left the nodes represent the agents and the edges the neighbors to which they are connected. The color of the node represents the the state of the agent (green if they prefer A, red if they prefer B). <br>
 
 Below, the percentage of agents believing in A and B is present, togheter with and indication of the Consesus (reached or not reached) and the round in which the current consensus was established (or the current round if there is no consensus). <br>
@@ -201,12 +201,19 @@ In the graph on the right the *Avg A expectation* represent the mean of the expe
 
 Below the results of the experiments of each round is shown, as well as the total evidence for both theories and their expectations based on evidence only. <br>
 
+## Replications
+
+Replications of three studies conducted on this model are presented in `replications/`. The replication were performed using an older version of the model, were there was no control over the rounds for the dynamic update of objective probabilities (it was a switch to trigger it every 100 round, like in Frey & Šešelja (2020)) and no control over the exact theory threshold (which again was necessarily 0.1 as in Frey & Šešelja (2020)). 
 
 ## Repository layout
 
 ```
-run.py                               # Interactive entrypoint (use with `solara run run.py`)
-batch_run
+interactive_model.py                 # Interactive entrypoint (use with `solara run interactive_model.py`)
+interactive_model.ipynb              # Used to produce the interactive model inside a Jupyter Notebook
+batch_run/
+  batch_run_scripts/                 # Scripts for batch run (include different metrics, comparable to the ones used in the papers)
+    agent.py
+    model.py
   batch_run.ipynb                    # Notebook for batch running
   batch_run.py                       # Script for bacth running
 scripts/
@@ -216,10 +223,14 @@ scripts/
 replications/
   Zollman_replication.ipynb          # Replication of Zollman main result
   Rosenstocketal_replication.ipynb   # Replication of Rosenstock et al. robustness tests
-  Frey_Seselja_replication.ipynb     # Replication of Frey and Šešelja variation on Zollman's model
+  Frey_Seselja_replication.ipynb     # Replication of Frey and Šešelja variations on Zollman's model
+README.md
 REFERENCES.md
 CONTRIBUTING.md
 LICENSE
+requirements.txt
+runtime.txt
+.gitignore
 ```
 
 ## License
