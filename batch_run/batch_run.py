@@ -1,9 +1,10 @@
 import mesa
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 from pathlib import Path
 
-from .scripts.model import Bandit
+from batch_run_scripts.model import Bandit
 
         
 ###                 BATCH RUNNER                    ###
@@ -14,10 +15,10 @@ parameters_batch_run = {
         "b_objective" : .499, 
         "max_priors" : 4,
         "graph" : ["complete", "wheel", "cycle"],
-        "theory_treshold" : False,
         "step_pulls" : 1000,
-        "dynamic" : False,
-        "criticism" : False,
+        "dynamic" : None,
+        "criticism" : None,
+        "theory_treshold" : 0,
         "inertia" : 0,
         "seed" : None
     }
@@ -25,15 +26,13 @@ parameters_batch_run = {
 batch_run_results = mesa.batch_run(
     Bandit,
     parameters= parameters_batch_run,
-    iterations=100,
-    max_steps=10000
+    iterations=1,
+    max_steps=100
 )
 
 batch_run_results_df = pd.DataFrame(batch_run_results)
 
 sns.lineplot(data=batch_run_results_df, x="n", y="Correct Convergence", hue="graph", errorbar=None)
-
-import matplotlib.pyplot as plt
 
 plt.show()
 
