@@ -1,8 +1,6 @@
+from mesa.discrete_space import FixedAgent
+
 ###                 AGENTS                  ###
-import mesa
-from mesa.discrete_space import Network, FixedAgent
-import numpy as np
-import networkx as nx
 
 class Scientist(FixedAgent):
 
@@ -48,8 +46,9 @@ class Scientist(FixedAgent):
         b_exp = self.priors["b_alpha"] / (self.priors ["b_alpha"] + self.priors ["b_beta"])
         return b_exp
     
-    #Research behaviour: performing experiments
+    
     def research(self):
+        """Research behaviour: performing experiments"""
 
         pull, success, trial = self.experiment_result
 
@@ -70,8 +69,9 @@ class Scientist(FixedAgent):
         
         return self.experiment_result
 
-    #Update behaviour: updating expectations based non experimental results
+    
     def update(self):
+        """Update behaviour: updating expectations based on experimental results"""
         # Update beliefs based on OWN results
         pull, success, trial = self.experiment_result
 
@@ -123,7 +123,7 @@ class Scientist(FixedAgent):
             self.b_objective += (0- self.b_objective) / 1000
         
     def critical_interaction(self):
-        """Slightly modify the objective values if neighbors provide more covincing evidence for the competing hypothesis"""
+        """Slightly modify the objective values if neighbors provide more covincing evidence for the competing hypothesis"""    
         pull, success, trial = self.experiment_result
 
         for neighbor in self.cell.neighborhood.agents: 
@@ -140,3 +140,4 @@ class Scientist(FixedAgent):
     def clean_results(self):
         self.experiment_result = (0, 0, 0)
             
+        

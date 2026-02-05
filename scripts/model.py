@@ -1,9 +1,7 @@
 import mesa
-from mesa.discrete_space import Network, FixedAgent, CellCollection
-import random
+from mesa.discrete_space import Network
 import numpy as np
 import networkx as nx
-
 from .agent import Scientist
 
 ###                 MODEL                   ####
@@ -44,10 +42,10 @@ class Bandit(mesa.Model):
             b_objective = .499, 
             max_priors = 4,
             graph = "complete",
-            theory_treshold = False,
+            theory_treshold = 0,
             step_pulls = 1000,
-            dynamic = False,
-            criticism = False,
+            dynamic = None,
+            criticism = None,
             inertia = 0,
             seed = None
                     ):
@@ -182,5 +180,3 @@ class Bandit(mesa.Model):
         self.round_counter += 1
         self.Check_Convergence()
         self.Get_Convergence_Round()
-        
-
