@@ -1,5 +1,6 @@
 # Epistemic ABM (simple interactive replica)
-**Work in progress**
+
+![Dashboard preview](/assets/Dashboard.png)
 
 A **minimal** repository that provides:
 
