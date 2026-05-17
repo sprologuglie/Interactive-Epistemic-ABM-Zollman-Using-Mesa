@@ -1,5 +1,4 @@
 # Epistemic ABM (simple interactive replica)
-**Work in progress**
 
 A **minimal** repository that provides:
 
