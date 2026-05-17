@@ -95,6 +95,7 @@ class Bandit(mesa.Model):
         self.round_counter = 0
         self.consensus_round = None
         self.check_previous_conv = 0
+        self.convergence_status = 0
 
        
     def Count_State_a(self):
@@ -155,7 +156,9 @@ class Bandit(mesa.Model):
     
     def Get_Convergence_Round(self):
         """Get the round in which agents converged"""
-        if (self.Check_Convergence() == 1 or self.Check_Convergence() == 2) and self.consensus_round == None:
+        conv = self.Check_Convergence()
+        self.convergence_status = conv
+        if (conv == 1 or conv == 2) and self.consensus_round == None:
             self.consensus_round = self.round_counter
         
 
@@ -178,5 +181,4 @@ class Bandit(mesa.Model):
         self.agents.do("clean_results")
 
         self.round_counter += 1
-        self.Check_Convergence()
         self.Get_Convergence_Round()
