@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: "Interactive Epistemic ABM (Zollman model) using Mesa"
+authors:
+  - family-names: Sproloquio
+    given-names: Guglielmo
+    affiliation: University of Turin
+    orcid: https://orcid.org/0009-0004-9468-0330
+version: 0.1.0
+date-released: 2026-05-17
+license: MIT
+repository-code: https://github.com/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa
+keywords:
+  - agent-based modeling
+  - philosophy of science
+  - epistemic networks
+  - social epistemology
+  - Mesa

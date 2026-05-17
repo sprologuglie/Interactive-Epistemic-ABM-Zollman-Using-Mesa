@@ -191,11 +191,13 @@ Inside the Bandit model
 
   - check_previous_conv: tracks whether last consensus was on A or B to detect changes.
 
+  - convergence_status: Store the current convergence status -> 0 if no consensus, 1 if consensus on A and 2 if consensus on B
+
 ### Statistics in the dashboard
 
 In the graph of the left the nodes represent the agents and the edges the neighbors to which they are connected. The color of the node represents the the state of the agent (green if they prefer A, red if they prefer B). <br>
 
-Below, the percentage of agents believing in A and B is present, togheter with and indication of the Consesus (reached or not reached) and the round in which the current consensus was established (or the current round if there is no consensus). <br>
+Below, the percentage of agents believing in A and B is present, togheter with and indication of the Consesus and the round in which the current consensus was established. <br>
 
 In the graph on the right the *Avg A expectation* represent the mean of the expected outcome of A for all the agents. This metric shows how on average agents are far from the actual value of A, plotted as *A objective probability*. The same goes for B. <br>
 
