@@ -48,7 +48,8 @@ class Bandit(mesa.Model):
             self.grid = Network(nx.wheel_graph(n), random=self.random)
         elif graph == "cycle":
             self.grid = Network(nx.cycle_graph(n), random=self.random)
-        else : print("Uknown network type: please use ['complete', 'wheel', 'cycle']")
+        else:
+            raise ValueError(f"Unknown network type '{graph}'. Use 'complete', 'wheel', or 'cycle'.")
         # Create agents
         Scientist.create_agents(
             model=self, n=n, cell=list(self.grid.all_cells.cells), a_objective = self.a_objective, b_objective = self.b_objective, max_priors = max_priors, theory_threshold = theory_threshold, inertia = inertia, step_pulls = step_pulls, dynamic = dynamic)

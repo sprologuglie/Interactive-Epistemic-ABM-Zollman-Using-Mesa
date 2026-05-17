@@ -25,7 +25,7 @@ def Count_Belief_b(model):
 
 
 def Get_A_Objective(model):
-    return np.mean(list(a.a_objective for a in model.agents))
+    return np.mean([a.a_objective for a in model.agents]) 
 
 def Get_B_Objective(model):
     return np.mean(list(a.b_objective for a in model.agents))
@@ -64,7 +64,8 @@ class Bandit(mesa.Model):
             self.grid = Network(nx.wheel_graph(n), random=self.random)
         elif graph == "cycle":
             self.grid = Network(nx.cycle_graph(n), random=self.random)
-        else : print("Uknown network type: please use ['complete', 'wheel', 'cycle']")
+        else:
+            raise ValueError(f"Unknown network type '{graph}'. Use 'complete', 'wheel', or 'cycle'.")
         # Create agents
         Scientist.create_agents(
             model=self, n=n, cell=list(self.grid.all_cells.cells), a_objective = self.a_objective, b_objective = self.b_objective, max_priors = max_priors, theory_threshold = theory_threshold, inertia = inertia, step_pulls = step_pulls, dynamic = dynamic)
@@ -100,11 +101,11 @@ class Bandit(mesa.Model):
        
     def Count_State_a(self):
         """Function for counting how may agents prefer to pull A"""
-        return sum(1 for a in self.agents if a.state == "a")/sum(1 for _ in self.agents)
+        return sum(1 for a in self.agents if a.state == "a")/self.num_agents
     
     def Count_State_b(self):
         """Function for counting how may agents prefer to pull B"""
-        return sum(1 for a in self.agents if a.state == "b")/sum(1 for _ in self.agents)
+        return sum(1 for a in self.agents if a.state == "b")/self.num_agents
 
     def Count_Evidence(self):
         """Function for collecting the experiments results"""

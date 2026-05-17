@@ -136,11 +136,6 @@ def agent_stats(model):
     ratio_b = model.Count_State_b() * 100
     round_display = model.consensus_round if model.consensus_round else model.round_counter
 
-    with solara.Column(style={"gap": "4px"}):
-        solara.Text(f"Pursuing A: {ratio_a:.1f}%  |  Pursuing B: {ratio_b:.1f}%")
-        solara.Text(f"Round: {round_display}", style={"color": "grey", "fontSize": "0.9rem"})
-
-
     update_counter.get()
     conv = model.convergence_status
 
@@ -158,15 +153,19 @@ def agent_stats(model):
             "background-color": color,
             "color": "white",
             "padding": "10px 20px",
-            "border-radius": "24px",
+            "border-radius": "5px",
             "font-weight": "bold",
             "font-size": "1rem",
             "display": "inline-block",
-            "margin": "8px 4px",
+            "margin": "10px auto",
             "letter-spacing": "0.3px",
             "transition": "background-color 0.3s ease"
         }
     )
+
+    with solara.Column(style={"gap": "4px"}):
+        solara.Text(f"Pursuing A: {ratio_a:.1f}%  |  Pursuing B: {ratio_b:.1f}%")
+        solara.Text(f"Round: {round_display}", style={"color": "grey", "fontSize": "0.9rem"})
 
 @solara.component
 def experiment_stats(model):
@@ -246,7 +245,8 @@ SpaceViz = make_space_component(
 def Page():
     solara.Title("Epistemic Bandit Model")
     solara.lab.theme.themes.light.primary = "#2D6A4F"
-    solara.lab.theme.themes.dark.primary  = "#2D6A4F"       
+    solara.lab.theme.themes.dark.primary  = "#2D6A4F" 
+    solara.Style(".v-tab { display: none !important; }")     
 
     viz = SolaraViz(
         epistemic_ABM,

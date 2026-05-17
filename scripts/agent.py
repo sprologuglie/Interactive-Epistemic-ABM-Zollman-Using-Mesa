@@ -17,7 +17,7 @@ class Scientist(FixedAgent):
         self.dynamic = dynamic
 
         #Prior beliefs of each agent
-        epsilon = .000000000000000000001
+        epsilon = 1e-21
         self.priors = {
         "a_alpha": self.random.uniform(epsilon, self.max_priors),
         "a_beta": self.random.uniform(epsilon, self.max_priors),
@@ -49,8 +49,6 @@ class Scientist(FixedAgent):
     
     def research(self):
         """Research behaviour: performing experiments"""
-
-        pull, success, trial = self.experiment_result
 
         #Choose action based of belief
         if self.state == "a":
