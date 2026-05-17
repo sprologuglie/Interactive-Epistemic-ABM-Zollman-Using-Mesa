@@ -4,13 +4,13 @@ from mesa.discrete_space import FixedAgent
 
 class Scientist(FixedAgent):
 
-    def __init__(self, model, cell, a_objective, b_objective, max_priors, theory_treshold, inertia, step_pulls, dynamic):
+    def __init__(self, model, cell, a_objective, b_objective, max_priors, theory_threshold, inertia, step_pulls, dynamic):
         super().__init__(model)
         self.cell = cell
         self.a_objective = a_objective
         self.b_objective = b_objective
         self.max_priors = max_priors
-        self.theory_treshold = theory_treshold
+        self.theory_threshold = theory_threshold
         self.inertia = inertia
         self.inertia_counter = 0
         self.step_pulls = step_pulls
@@ -94,9 +94,9 @@ class Scientist(FixedAgent):
                 self.priors["b_alpha"] += success
                 self.priors["b_beta"] += trial - success
             
-        #Updating preferences for experimentations (include theory_treshold and inertia)    
+        #Updating preferences for experimentations (include theory_threshold and inertia)    
         if self.state == "a":
-            if (self.a_expectations() + self.theory_treshold) > self.b_expectations():
+            if (self.a_expectations() + self.theory_threshold) > self.b_expectations():
                 self.state = "a"
                 self.inertia_counter = 0
             else:
@@ -105,7 +105,7 @@ class Scientist(FixedAgent):
                     self.state = "b"
         
         else:
-            if (self.b_expectations() + self.theory_treshold) > self.a_expectations():
+            if (self.b_expectations() + self.theory_threshold) > self.a_expectations():
                 self.state = "b"
                 self.inertia_counter = 0
             else:

@@ -42,7 +42,7 @@ class Bandit(mesa.Model):
             b_objective = .499, 
             max_priors = 4,
             graph = "complete",
-            theory_treshold = 0,
+            theory_threshold = 0,
             step_pulls = 1000,
             dynamic = None,
             criticism = None,
@@ -67,7 +67,7 @@ class Bandit(mesa.Model):
         else : print("Uknown network type: please use ['complete', 'wheel', 'cycle']")
         # Create agents
         Scientist.create_agents(
-            model=self, n=n, cell=list(self.grid.all_cells.cells), a_objective = self.a_objective, b_objective = self.b_objective, max_priors = max_priors, theory_treshold = theory_treshold, inertia = inertia, step_pulls = step_pulls, dynamic = dynamic)
+            model=self, n=n, cell=list(self.grid.all_cells.cells), a_objective = self.a_objective, b_objective = self.b_objective, max_priors = max_priors, theory_threshold = theory_threshold, inertia = inertia, step_pulls = step_pulls, dynamic = dynamic)
     
         # Instantiate DataCollector
         self.datacollector = mesa.DataCollector(

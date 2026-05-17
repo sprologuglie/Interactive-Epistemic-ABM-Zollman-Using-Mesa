@@ -81,9 +81,9 @@ model_params = {
 
     },
     
-    "theory_treshold": Slider(
+    "theory_threshold": Slider(
         value=0,
-        label="Theory change treshold",
+        label="Theory change threshold",
         min=0,
         max=.2,
         step=.005

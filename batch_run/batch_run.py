@@ -18,7 +18,7 @@ parameters_batch_run = {
         "step_pulls" : 1000,
         "dynamic" : None,
         "criticism" : None,
-        "theory_treshold" : 0,
+        "theory_threshold" : 0,
         "inertia" : 0,
         "seed" : None
     }

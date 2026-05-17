@@ -151,7 +151,7 @@ These are the knobs you pass when constructing the model.
   - Meaning: number of Bernoulli trials per round per agent (the n in the Binomial(n, p)).
   - Role: controls evidence volume per round. Smaller values make inquiry harder and amplify the chance of misleading streaks. It is one of Rosenstock’s key drivers of when connectivity matters.
 
-- theory_treshold (default None)
+- theory_threshold (default None)
   - Meaning: margin in which the agents don't switch theory even if the competing have an higher expectation
   - Role: implements a switching margin / indifference interval: an agent sticks with the current theory unless the alternative is better by more than the threshold (in code: it compares E[current] + threshold > E[other]). This corresponds to Frey–Šešelja’s “interval within which theories count as equally good.”
 
