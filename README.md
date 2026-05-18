@@ -1,5 +1,4 @@
 # Epistemic ABM (simple interactive replica)
-<<<<<<< HEAD
 
 ![Dashboard preview](/assets/Dashboard.png)
 
