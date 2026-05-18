@@ -14,6 +14,8 @@ This repo is intentionally lightweight: just scripts you can run.
 
 ## Dashboard Quickstart
 
+![Dashboard preview](/assets/Dashboard.png)
+
 ### How it works
 You can modify the parameters trough the panel on the left, then press restart to apply changes. Then let the model run continuously with the play button or for a single step with the step button.
 
@@ -46,6 +48,8 @@ Solara will print a local URL (typically `http://localhost:8765`). Open it in yo
 
 
 ## Batch runs (headless)
+
+![Batch run demo](/assets/Zollman%20effect.png)
 
 ### Try it in your browser (no install)
 
