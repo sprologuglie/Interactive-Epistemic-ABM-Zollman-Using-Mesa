@@ -1,7 +1,5 @@
 # Epistemic ABM (simple interactive replica)
 
-![Dashboard preview](/assets/Dashboard.png)
-
 A **minimal** repository that provides:
 
 - a small **agent-based model** (epistemic network + two-armed bandit)
