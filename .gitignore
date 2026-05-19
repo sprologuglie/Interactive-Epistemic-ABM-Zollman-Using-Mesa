@@ -1,2 +1,6 @@
 .venv
+.pytest_cache
 outputs/
+scripts/__pycache__
+batch_run/batch_run_scripts/__pycache__
+*cache*/
