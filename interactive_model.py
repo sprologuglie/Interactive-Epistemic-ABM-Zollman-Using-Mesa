@@ -11,6 +11,10 @@ from mesa.visualization.components import AgentPortrayalStyle
 from mesa.visualization.utils import update_counter
 from matplotlib.figure import Figure
 import networkx as nx
+import numpy as np
+import io
+import json
+import zipfile
 from scripts.model import Bandit
 
 
@@ -95,7 +99,15 @@ model_params = {
         min=0,
         max=20,
         step=1
-    )
+    ),
+
+    "seed": {
+        "type": "Select",
+        "value": None,
+        "label": "Seed",
+        "values" : [None, 3, 42, 123, 456, 789, 1000, 2839, 8182, 9999]
+    }
+    
     
     
     
@@ -109,21 +121,27 @@ def deviation_plot(Model):
     
     fig = Figure()
     ax = fig.subplots()
-    dev = Model.datacollector.get_model_vars_dataframe()
-    ax.plot("Avg. A expectation", data=dev, label="Avg. A expectation")
-    ax.plot("A objective probability", data=dev, label="A objective probability", linestyle= "dashed")
-    ax.plot("Avg. B expectation", data=dev, label="Avg. B expectation")
-    ax.plot("B objective probability", data=dev, label="B objective probability", linestyle = "dashed")
-    ax.get_label()
-    ax.legend()
-    fig.align_xlabels()
-    ax.set_xlabel("Round")
-    ax.set_ylabel("Expected success rate")
-    ax.set_title("Agent beliefs vs. true probabilities")
-    ax.grid(True, alpha=0.2)
-    ax.legend(fontsize=8)
-    fig.tight_layout()
+    try:
+        dev = Model.datacollector.get_model_vars_dataframe()
+        if len(dev) == 0:
+            solara.FigureMatplotlib(fig)
+            return
+        ax.plot("Avg. A expectation", data=dev, label="Avg. A expectation")
+        ax.plot("A objective probability", data=dev, label="A objective probability", linestyle= "dashed")
+        ax.plot("Avg. B expectation", data=dev, label="Avg. B expectation")
+        ax.plot("B objective probability", data=dev, label="B objective probability", linestyle = "dashed")
+        ax.get_label()
+        ax.legend()
+        fig.align_xlabels()
+        ax.set_xlabel("Round")
+        ax.set_ylabel("Expected success rate")
+        ax.set_title("Agent beliefs vs. true probabilities")
+        ax.grid(True, alpha=0.2)
+        ax.legend(fontsize=8)
+        fig.tight_layout()
 
+    except RuntimeError, ValueError:
+        pass
     
     solara.FigureMatplotlib(fig)
 
@@ -134,9 +152,9 @@ def agent_stats(model):
     update_counter.get()
     ratio_a = model.Count_State_a() * 100
     ratio_b = model.Count_State_b() * 100
-    round_display = model.consensus_round if model.consensus_round else model.round_counter
+    round_display = model.consensus_round if model.consensus_round else "no consensus"
+    round_counter = model.round_counter
 
-    update_counter.get()
     conv = model.convergence_status
 
     config = {
@@ -165,7 +183,15 @@ def agent_stats(model):
 
     with solara.Column(style={"gap": "4px"}):
         solara.Text(f"Pursuing A: {ratio_a:.1f}%  |  Pursuing B: {ratio_b:.1f}%")
-        solara.Text(f"Round: {round_display}", style={"color": "grey", "fontSize": "0.9rem"})
+        solara.Text(f"Round of current consensus: {round_display}")
+        solara.Text(f"Current round: {round_counter}", style={"color": "grey", "fontSize": "0.9rem"})
+
+        solara.FileDownload(
+            lambda: generate_results_zip(model),
+            filename="epistemic_bandit_results.zip",
+            label="Download Results zip",
+            mime_type="application/zip"
+        )
 
 @solara.component
 def experiment_stats(model):
@@ -233,6 +259,187 @@ def experiment_stats(model):
 
     solara.HTML(tag="div", unsafe_innerHTML=html)
 
+@solara.component
+def agents_table(model):
+    update_counter.get()
+
+    rows = ""
+    for agent in model.agents:
+        rows += f"""<tr>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.unique_id}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.state.upper()}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.a_expectations():.3f}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.b_expectations():.3f}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.a_objective:.3f}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.b_objective:.3f}</td>
+        </tr>"""
+
+    html = f"""
+    <div style="font-family: sans-serif; font-size: 0.9rem; margin: 8px 0; max-height; 500px; overflow-y: auto;">
+      <div style="font-weight: 600; font-size: 1rem; margin-bottom: 10px;">
+        Agents
+      </div>
+    <table style="width: 100%;">
+    <thead>
+        <tr>
+            <th style="text-align:center; padding: 6px 12px; border-bottom: 2px solid #e0e0e0;">ID</th>
+            <th style="text-align:center; padding: 6px 12px; border-bottom: 2px solid #e0e0e0;">Pursued Theory</th>
+            <th style="text-align:center; padding: 6px 12px; border-bottom: 2px solid #e0e0e0;
+                       color: #2D6A4F;">Theory A Expectation</th>
+            <th style="text-align:center; padding: 6px 12px; border-bottom: 2px solid #e0e0e0;
+                       color: #C0392B;">Theory B Expectation</th>
+            <th style="text-align:center; padding: 6px 12px; border-bottom: 2px solid #e0e0e0;
+                       color: #2D6A4F;">Theory A Objective</th>
+            <th style="text-align:center; padding: 6px 12px; border-bottom: 2px solid #e0e0e0;
+                       color: #C0392B;">Theory B Objective</th>
+        </tr>
+    </thead>
+    <tbody>{rows}</tbody>
+    </table>
+    </div>
+    """
+
+    solara.HTML(tag="div", unsafe_innerHTML=html)
+
+@solara.component
+def aggregate_metrics(model):
+    update_counter.get()
+
+    # Calcolo varianze
+    beliefs_a = [agent.a_expectations() for agent in model.agents]
+    beliefs_b = [agent.b_expectations() for agent in model.agents]
+    variance_a = np.var(beliefs_a)
+    variance_b = np.var(beliefs_b)
+
+    # Calcolo entropia di Shannon sulla distribuzione A/B
+    p_a = model.Count_State_a()
+    p_b = model.Count_State_b()
+    entropy = 0
+    if p_a > 0:
+        entropy -= p_a * np.log2(p_a)
+    if p_b > 0:
+        entropy -= p_b * np.log2(p_b)
+
+    html = f"""
+    <div style="display: flex; gap: 12px; margin: 8px 0;">
+        <div style="flex: 1; padding: 12px 16px; border-radius: 8px;
+                    background: #f5f5f5; text-align: center;">
+            <div style="font-size: 0.8rem; color: #888; margin-bottom: 4px;">
+                Variance — Theory A</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #2D6A4F;">
+                {variance_a:.5f}</div>
+        </div>
+        <div style="flex: 1; padding: 12px 16px; border-radius: 8px;
+                    background: #f5f5f5; text-align: center;">
+            <div style="font-size: 0.8rem; color: #888; margin-bottom: 4px;">
+                Variance — Theory B</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #C0392B;">
+                {variance_b:.5f}</div>
+        </div>
+        <div style="flex: 1; padding: 12px 16px; border-radius: 8px;
+                    background: #f5f5f5; text-align: center;">
+            <div style="font-size: 0.8rem; color: #888; margin-bottom: 4px;">
+                Shannon Entropy — A/B states</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #555;">
+                {entropy:.3f} <span style="font-size: 0.9rem; color: #aaa;">/ 1</span>
+            </div>
+        </div>
+    </div>
+    """
+
+    solara.HTML(tag="div", unsafe_innerHTML=html)
+
+
+@solara.component
+def belief_histogram(model):
+    update_counter.get()
+
+    fig = Figure()
+    ax = fig.subplots()
+
+    beliefs_a = [agent.a_expectations() for agent in model.agents]
+    beliefs_b = [agent.b_expectations() for agent in model.agents]
+
+    ax.hist(beliefs_a, bins=33, range=(0, 1),
+            color="#2D6A4F", alpha=0.7, label="Belief in A")
+    ax.hist(beliefs_b, bins=33, range=(0, 1),
+            color="#C0392B", alpha=0.7, label="Belief in B")
+
+    ax.set_xlim(0, 1)
+    ax.set_xlabel("Expected success rate")
+    ax.set_ylabel("Number of agents")
+    ax.set_title("Distribution of agent beliefs")
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.2)
+    fig.tight_layout()
+
+    solara.FigureMatplotlib(fig)
+
+def generate_results_zip(model):
+    buffer = io.BytesIO()
+
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+
+        # 1. Metriche del modello nel tempo (CSV)
+        try:
+            model_df = model.datacollector.get_model_vars_dataframe()
+            zf.writestr("model_metrics.csv", model_df.to_csv())
+        except ValueError:
+            pass
+
+        # 2. Metriche per agente nel tempo (CSV)
+        try:
+            agent_df = model.datacollector.get_agent_vars_dataframe()
+            zf.writestr("agent_metrics.csv", agent_df.to_csv())
+        except (ValueError, KeyError):
+            pass
+
+        # 3. Parametri della run (JSON)
+        params = {
+            "n_agents": model.num_agents,
+            "graph": model.graph,
+            "a_objective": model.a_objective,
+            "b_objective": model.b_objective,
+            "max priors": model.max_priors,
+            "step_pulls": model.step_pulls,
+            "dynamic": model.dynamic,
+            "criticism": model.criticism,
+            "inertia": list(model.agents)[0].inertia,
+            "theory_threshold": list(model.agents)[0].theory_threshold,
+            "seed": model.seed,
+            "total_rounds": model.round_counter,
+        }
+        zf.writestr("parameters.json", json.dumps(params, indent=2))
+
+        # 4. Sommario leggibile (TXT)
+        conv_labels = {
+            0: "No consensus reached",
+            1: "Consensus on correct hypothesis (A)",
+            2: "Consensus on wrong hypothesis (B)"
+        }
+        eva = (model.experiments_results_a["successes"] /
+               model.experiments_results_a["trials"]
+               if model.experiments_results_a["trials"] > 0 else 0)
+        evb = (model.experiments_results_b["successes"] /
+               model.experiments_results_b["trials"]
+               if model.experiments_results_b["trials"] > 0 else 0)
+
+        summary = f"""Epistemic Bandit Model — Run Summary
+            ======================================
+            Total rounds:       {model.round_counter}
+            Convergence:        {conv_labels[model.convergence_status]}
+            Consensus round:    {model.consensus_round if model.consensus_round else "N/A"}
+            Agents on A:        {model.Count_State_a() * 100:.1f}%
+            Agents on B:        {model.Count_State_b() * 100:.1f}%
+            Empirical p(A):     {eva:.4f}
+            Empirical p(B):     {evb:.4f}
+            """
+        zf.writestr("summary.txt", summary)
+
+    buffer.seek(0)
+    return buffer.read()
+
+
 
 epistemic_ABM = Bandit()
 
@@ -241,16 +448,41 @@ SpaceViz = make_space_component(
     agent_portrayal, backend="matplotlib", layout_alg = nx.shell_layout, layout_kwargs={"scale": 1.0}
 )
 
+
+
+
 @solara.component
 def Page():
     solara.Title("Epistemic Bandit Model")
     solara.lab.theme.themes.light.primary = "#2D6A4F"
     solara.lab.theme.themes.dark.primary  = "#2D6A4F" 
-    solara.Style(".v-tab { display: none !important; }")     
+    solara.Style("""
+        /* Nascondiamo il testo numerico originale (0, 1, 2) ma teniamo il pulsante */
+        .v-tab {
+            font-size: 0 !important;
+        }
+        
+        /* Definiamo il nuovo nome per il Tab 0 */
+        .v-tab:nth-child(2)::after {
+            content: "Model";
+            font-size: 14px !important; /* Ripristiniamo la dimensione del font */
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* Definiamo il nuovo nome per il Tab 1 */
+        .v-tab:nth-child(3)::after {
+            content: "Agents";
+            font-size: 14px !important;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+    """)    
 
     viz = SolaraViz(
-        epistemic_ABM,
-        model_params=model_params,
-        components=[SpaceViz, deviation_plot, agent_stats, experiment_stats],
-        name="Epistemic Bandit ABM",
-    )
+    epistemic_ABM,
+    model_params=model_params,
+    components=[SpaceViz, (deviation_plot, 0), (agent_stats, 0), (experiment_stats, 0), (belief_histogram, 1), (agents_table, 1), (aggregate_metrics, 1)],
+    name="Epistemic Bandit ABM")
+
+    

@@ -57,6 +57,10 @@ class Bandit(mesa.Model):
         self.step_pulls = step_pulls
         self.dynamic = dynamic
         self.criticism = criticism
+        self.graph = graph
+        self.seed = seed
+        self.max_priors = max_priors
+        self.inertia = inertia
         #Defining the graph type
         if graph == "complete":
             self.grid = Network(nx.complete_graph(n), random=self.random)
@@ -72,8 +76,10 @@ class Bandit(mesa.Model):
     
         # Instantiate DataCollector
         self.datacollector = mesa.DataCollector(
-            model_reporters={"Avg. A expectation": Count_Belief_a, "A objective probability": Get_A_Objective, "Avg. B expectation": Count_Belief_b, "B objective probability": Get_B_Objective}
+            model_reporters={"Avg. A expectation": Count_Belief_a, "A objective probability": Get_A_Objective, "Avg. B expectation": Count_Belief_b, "B objective probability": Get_B_Objective},
+            agent_reporters={"Belief_A": lambda a: a.a_expectations(), "Belief_B": lambda a: a.b_expectations(), "State": "state"}
         )
+
         #Create dictionaries for total experiments results
         self.experiments_results_a = {
             "successes": 0,
