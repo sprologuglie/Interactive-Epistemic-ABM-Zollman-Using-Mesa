@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pathlib import Path
+from datetime import datetime
 
 from batch_run_scripts.model import Bandit
 
@@ -26,8 +27,8 @@ parameters_batch_run = {
 batch_run_results = mesa.batch_run(
     Bandit,
     parameters= parameters_batch_run,
-    iterations=1,
-    max_steps=100
+    iterations=500,
+    max_steps=3000
 )
 
 batch_run_results_df = pd.DataFrame(batch_run_results)
@@ -38,12 +39,13 @@ plt.show()
 
 # For saving to csv
 
-def save_df_csv(df, path="outputs/my_dataframe.csv", *, index=False):
+def save_df_csv(df, path=None, *, index=False):
+    if path is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = f"outputs/batch_run_{timestamp}.csv"
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=index, encoding="utf-8")
     return path
 
-# Default path
-p = save_df_csv(batch_run_results_df) # To specify you path: save_df_csv(batch_run_results_df, path="my/path/bacth_run_results_df.csv")   
-print("Salvato in:", p)
+save_df_csv(df=batch_run_results_df)

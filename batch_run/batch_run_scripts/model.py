@@ -6,9 +6,7 @@ from .agent import Scientist
 
 ###                 MODEL                   ####
 def Convergence_Round(model):
-    if model.consensus_round == None:
-        return "No consensus"
-    else: return model.consensus_round
+    return model.consensus_round 
 
 def Correct_Convergence(model):
     if sum(1 for a in model.agents if a.state == "a") == model.num_agents:
@@ -28,7 +26,7 @@ class Bandit(mesa.Model):
             theory_threshold = 0,
             step_pulls = 1000,
             dynamic = None,
-            criticism = None,
+            criticism = False,
             inertia = 0,
             seed = None
                     ):
@@ -87,10 +85,11 @@ class Bandit(mesa.Model):
     
     def Get_Convergence_Round(self):
         """Get the round in which agents converged"""
-        if (self.Check_Convergence() == 1 or self.Check_Convergence() == 2) and self.consensus_round == None:
+        conv = self.Check_Convergence()
+        self.convergence_status = conv
+        if (conv == 1 or conv == 2) and self.consensus_round == None:
             self.consensus_round = self.round_counter
         
-
     def step(self):
         """Advance the model by one step."""
         self.datacollector.collect(self)
@@ -107,6 +106,5 @@ class Bandit(mesa.Model):
         self.agents.do("clean_results")
 
         self.round_counter += 1
-        self.Check_Convergence()
         self.Get_Convergence_Round()
         

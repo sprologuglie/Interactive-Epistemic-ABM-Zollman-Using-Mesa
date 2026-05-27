@@ -1,6 +1,7 @@
 import pytest
 from batch_run.batch_run_scripts.model import Bandit
 
+
 # Functions tests
 
 def test_step():
@@ -74,9 +75,13 @@ def test_seed():
         model_1.step()
         model_2.step()
     
-    assert model_1.Check_Convergence() == model_2.Check_Convergence()
-    assert model_1.Get_Convergence_Round() == model_2.Get_Convergence_Round()
+    assert model_1.consensus_round == model_2.consensus_round
 
+def test_step_pulls():
+    step_pulls = 100
+    model = Bandit(step_pulls=step_pulls, seed=42)
+    for agent in model.agents:
+        assert agent.step_pulls == step_pulls
 
 def test_max_priors():
     model = Bandit(n=5, max_priors=10, seed=42)
