@@ -5,13 +5,14 @@ import networkx as nx
 from .agent import Scientist
 
 ###                 MODEL                   ####
-def Convergence_Round(model):
+def convergence_round(model):
     return model.consensus_round 
 
-def Correct_Convergence(model):
+def correct_convergence(model):
     if sum(1 for a in model.agents if a.state == "a") == model.num_agents:
         return True
-    else: return False
+    else: 
+        return False
 
 class Bandit(mesa.Model):
     """Model"""
@@ -55,8 +56,8 @@ class Bandit(mesa.Model):
         # Instantiate DataCollector
         self.datacollector = mesa.DataCollector(
             model_reporters={
-                "Convergence Round": Convergence_Round,
-                "Correct Convergence": Correct_Convergence    
+                "Convergence Round": convergence_round,
+                "Correct Convergence": correct_convergence    
             }
         )
 
@@ -65,16 +66,16 @@ class Bandit(mesa.Model):
         self.check_previous_conv = 0
 
 
-    def Check_Convergence(self):
+    def check_convergence(self):
         """Checks whether all agents pursue the same hypothesis"""
         
         if sum(1 for a in self.agents if a.state == "a") == self.num_agents:
-            if self.consensus_round != None and self.check_previous_conv != 1:
+            if self.consensus_round and self.check_previous_conv != 1:
                 self.consensus_round = None
             self.check_previous_conv = 1
             return 1
         if sum(1 for a in self.agents if a.state == "b") == self.num_agents:
-            if self.consensus_round != None and self.check_previous_conv != 2:
+            if self.consensus_round and self.check_previous_conv != 2:
                 self.consensus_round = None
             self.check_previous_conv = 2
             return 2
@@ -83,11 +84,11 @@ class Bandit(mesa.Model):
             self.check_previous_conv = 0
             return 0
     
-    def Get_Convergence_Round(self):
+    def get_convergence_round(self):
         """Get the round in which agents converged"""
-        conv = self.Check_Convergence()
+        conv = self.check_convergence()
         self.convergence_status = conv
-        if (conv == 1 or conv == 2) and self.consensus_round == None:
+        if (conv == 1 or conv == 2) and not self.consensus_round:
             self.consensus_round = self.round_counter
         
     def step(self):
@@ -96,15 +97,15 @@ class Bandit(mesa.Model):
                
         self.agents.do("research")
 
-        if self.dynamic != None:
-            self.agents.do("Update_Objectives")
+        if self.dynamic:
+            self.agents.do("update_objectives")
         
-        if self.criticism == True:
+        if self.criticism:
             self.agents.do("critical_interaction")
         
         self.agents.do("update")
         self.agents.do("clean_results")
 
         self.round_counter += 1
-        self.Get_Convergence_Round()
+        self.get_convergence_round()
         

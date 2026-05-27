@@ -12,18 +12,18 @@ def test_convergence_a():
     model = Bandit(a_objective=0.9, b_objective=0.1, seed=42)
     for _ in range(500):
         model.step()
-    assert model.Check_Convergence() == 1
+    assert model.check_convergence() == 1
 
 def test_convergence_b():
     model = Bandit(a_objective=0.1, b_objective=0.9, seed=42)
     for _ in range(500):
         model.step()
-    assert model.Check_Convergence() == 2
+    assert model.check_convergence() == 2
 
 def test_belief():
     model = Bandit(n=10, seed=42)
     model.step()
-    assert model.Count_State_a() + model.Count_State_b() == pytest.approx(1.0)
+    assert model.count_state_a() + model.count_state_b() == pytest.approx(1.0)
 
 def test_experiments_round():
     model = Bandit(n=10, seed=42)
@@ -94,7 +94,7 @@ def test_seed():
         model_2.step()
     
     assert model_1.convergence_status == model_2.convergence_status
-    assert model_1.Count_State_a() == model_2.Count_State_a()
+    assert model_1.count_state_a() == model_2.count_state_a()
 
 def test_step_pulls():
     model = Bandit(n=10, step_pulls=100, seed=42)

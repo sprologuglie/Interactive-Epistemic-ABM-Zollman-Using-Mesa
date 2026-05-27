@@ -111,7 +111,7 @@ One model step (one “round”):
 
       - generate results: success ~ Binomial(n=step_pulls, p=objective_prob) (objective_prob depends on which arm was pulled).
 
-      - If enabled: dynamic success update (Update_Objectives)
+      - If enabled: dynamic success update (update_objectives)
 
       - If enabled: critical interaction update (critical_interaction)
 
@@ -159,7 +159,7 @@ These are the knobs you pass when constructing the model.
   - Role: implements a switching margin / indifference interval: an agent sticks with the current theory unless the alternative is better by more than the threshold (in code: it compares E[current] + threshold > E[other]). This corresponds to Frey–Šešelja’s “interval within which theories count as equally good.”
 
 - dynamic (default None)
-  - Meaning: the number of rounds until agents do Update_Objectives. If it is None, the update does not take place.
+  - Meaning: the number of rounds until agents do update_objectives. If it is None, the update does not take place.
   - Role: implements dynamic epistemic success: every specified number of rounds A is nudged upward toward 1 and B downward toward 0 (small increments of size ≈1/1000 of the remaining distance). This parallels Frey–Šešelja’s move from static to dynamic success assumptions.
 
 - criticism (default False)

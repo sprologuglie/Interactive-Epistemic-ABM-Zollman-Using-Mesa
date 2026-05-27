@@ -111,7 +111,7 @@ class Scientist(FixedAgent):
                 if self.inertia_counter >= self.inertia:
                     self.state = "a"
     
-    def Update_Objectives(self):
+    def update_objectives(self):
         """Slightley modify the objective values to increase the one of the correct theory and diminish the one of the incorrect every 100 rounds"""
         if self.dynamic_counter < self.dynamic:
             self.dynamic_counter += 1

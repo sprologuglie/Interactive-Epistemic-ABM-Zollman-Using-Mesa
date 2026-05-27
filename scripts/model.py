@@ -6,7 +6,7 @@ from .agent import Scientist
 
 ###                 MODEL                   ####
      
-def Count_Belief_a(model):
+def count_belief_a(model):
     """Funcion for counting the average expectation of a between agents"""
     agents_a_exp = [agent.priors["a_alpha"] / 
             (agent.priors ["a_alpha"] + agent.priors ["a_beta"]) for agent in model.agents]
@@ -15,7 +15,7 @@ def Count_Belief_a(model):
     return ma
 
        
-def Count_Belief_b(model):
+def count_belief_b(model):
     """Function for counting the average experctation of b between agents"""
     agents_b_exp = [agent.priors["b_alpha"] / 
             (agent.priors ["b_alpha"] + agent.priors ["b_beta"]) for agent in model.agents]
@@ -24,10 +24,10 @@ def Count_Belief_b(model):
     return mb
 
 
-def Get_A_Objective(model):
+def get_a_objective_probability(model):
     return np.mean([a.a_objective for a in model.agents]) 
 
-def Get_B_Objective(model):
+def get_b_objective_probability(model):
     return np.mean(list(a.b_objective for a in model.agents))
 
 
@@ -76,7 +76,7 @@ class Bandit(mesa.Model):
     
         # Instantiate DataCollector
         self.datacollector = mesa.DataCollector(
-            model_reporters={"Avg. A expectation": Count_Belief_a, "A objective probability": Get_A_Objective, "Avg. B expectation": Count_Belief_b, "B objective probability": Get_B_Objective},
+            model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability},
             agent_reporters={"Belief_A": lambda a: a.a_expectations(), "Belief_B": lambda a: a.b_expectations(), "State": "state"}
         )
 
@@ -105,15 +105,15 @@ class Bandit(mesa.Model):
         self.convergence_status = 0
 
        
-    def Count_State_a(self):
+    def count_state_a(self):
         """Function for counting how may agents prefer to pull A"""
         return sum(1 for a in self.agents if a.state == "a")/self.num_agents
     
-    def Count_State_b(self):
+    def count_state_b(self):
         """Function for counting how may agents prefer to pull B"""
         return sum(1 for a in self.agents if a.state == "b")/self.num_agents
 
-    def Count_Evidence(self):
+    def count_evidence(self):
         """Function for collecting the experiments results"""
 
         self.experiments_round_results_a = {
@@ -135,7 +135,7 @@ class Bandit(mesa.Model):
                 self.experiments_round_results_b["trials"] += trial
 
             
-    def Update_Evidence(self):
+    def update_evidence(self):
         """Function for updating experiment results data"""
         self.experiments_results_a["successes"] += self.experiments_round_results_a["successes"]
         self.experiments_results_a["trials"] += self.experiments_round_results_a["trials"]
@@ -143,16 +143,16 @@ class Bandit(mesa.Model):
         self.experiments_results_b["trials"] += self.experiments_round_results_b["trials"]          
         
     
-    def Check_Convergence(self):
+    def check_convergence(self):
         """Checks whether all agents pursue the same hypothesis"""
         
         if sum(1 for a in self.agents if a.state == "a") == self.num_agents:
-            if self.consensus_round != None and self.check_previous_conv != 1:
+            if self.consensus_round and self.check_previous_conv != 1:
                 self.consensus_round = None
             self.check_previous_conv = 1
             return 1
         if sum(1 for a in self.agents if a.state == "b") == self.num_agents:
-            if self.consensus_round != None and self.check_previous_conv != 2:
+            if self.consensus_round and self.check_previous_conv != 2:
                 self.consensus_round = None
             self.check_previous_conv = 2
             return 2
@@ -161,11 +161,11 @@ class Bandit(mesa.Model):
             self.check_previous_conv = 0
             return 0
     
-    def Get_Convergence_Round(self):
+    def get_convergence_round(self):
         """Get the round in which agents converged"""
-        conv = self.Check_Convergence()
+        conv = self.check_convergence()
         self.convergence_status = conv
-        if (conv == 1 or conv == 2) and self.consensus_round == None:
+        if (conv == 1 or conv == 2) and not self.consensus_round:
             self.consensus_round = self.round_counter
         
 
@@ -175,17 +175,17 @@ class Bandit(mesa.Model):
                
         self.agents.do("research")
 
-        self.Count_Evidence()
-        self.Update_Evidence()
+        self.count_evidence()
+        self.update_evidence()
 
-        if self.dynamic != None:
-            self.agents.do("Update_Objectives")
+        if self.dynamic:
+            self.agents.do("update_objectives")
         
-        if self.criticism == True:
+        if self.criticism:
             self.agents.do("critical_interaction")
         
         self.agents.do("update")
         self.agents.do("clean_results")
 
         self.round_counter += 1
-        self.Get_Convergence_Round()
+        self.get_convergence_round()

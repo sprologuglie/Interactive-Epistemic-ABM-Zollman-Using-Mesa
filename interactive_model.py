@@ -150,8 +150,8 @@ def deviation_plot(Model):
 @solara.component
 def agent_stats(model):
     update_counter.get()
-    ratio_a = model.Count_State_a() * 100
-    ratio_b = model.Count_State_b() * 100
+    ratio_a = model.count_state_a() * 100
+    ratio_b = model.count_state_b() * 100
     round_display = model.consensus_round if model.consensus_round else "no consensus"
     round_counter = model.round_counter
 
@@ -312,8 +312,8 @@ def aggregate_metrics(model):
     variance_b = np.var(beliefs_b)
 
     # Calcolo entropia di Shannon sulla distribuzione A/B
-    p_a = model.Count_State_a()
-    p_b = model.Count_State_b()
+    p_a = model.count_state_a()
+    p_b = model.count_state_b()
     entropy = 0
     if p_a > 0:
         entropy -= p_a * np.log2(p_a)
@@ -429,8 +429,8 @@ def generate_results_zip(model):
             Total rounds:       {model.round_counter}
             Convergence:        {conv_labels[model.convergence_status]}
             Consensus round:    {model.consensus_round if model.consensus_round else "N/A"}
-            Agents on A:        {model.Count_State_a() * 100:.1f}%
-            Agents on B:        {model.Count_State_b() * 100:.1f}%
+            Agents on A:        {model.count_state_a() * 100:.1f}%
+            Agents on B:        {model.count_state_b() * 100:.1f}%
             Empirical p(A):     {eva:.4f}
             Empirical p(B):     {evb:.4f}
             """
