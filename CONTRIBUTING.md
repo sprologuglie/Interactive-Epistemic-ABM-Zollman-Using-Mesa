@@ -69,7 +69,7 @@ Open an issue labelled **enhancement** describing:
 
 If you want to add a replication of a paper not currently covered:
 
-1. Create a new notebook in `notebooks/` following the structure of the existing ones (header → parameters table → one section per analysis → discrepancies → conclusions).
+1. Create a new notebook in `replication/` following the structure of the existing ones (header → parameters table → one section per analysis → discrepancies → conclusions).
 2. Import the model from `batch_run_scripts.model` — do not copy the model code inline.
 3. Document parameter mapping explicitly, including any deviations and their justification.
 4. Report all discrepancies honestly, including unresolved ones.
