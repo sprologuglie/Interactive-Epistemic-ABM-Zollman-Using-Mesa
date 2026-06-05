@@ -6,3 +6,4 @@ scripts/__pycache__/
 batch_run/batch_run_scripts/__pycache__/
 *cache*/
 assets/graph_drawing.py
+utility/
