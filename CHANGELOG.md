@@ -25,9 +25,6 @@ Versions correspond to GitHub releases and Zenodo snapshots.
 **Replications**
 - `Zollman_replication.ipynb` now include a replication the second finding of the 2010 paper
 
-**Tests**
-- New test for `step_pulls` and correction of the `seed` test in `tests/batch_run_model.py`
-
 **Documentation**
 - `README.md` rewritten to reflect model changes and be more concise and clear.
 
@@ -46,9 +43,8 @@ Versions correspond to GitHub releases and Zenodo snapshots.
 **Batch run**
 - Now there is only one instance of the model, used both for batch running and for the interactive dashboard: therefore all duplicated code for tests, agent behaviour and model is removed.
 
-
 **Replications**
-- New version of the replication notebooks now run the current batch run model and include more detailed explanations
+- New version of the replication notebooks now run the current model and include more detailed explanations
 
 ---
 
