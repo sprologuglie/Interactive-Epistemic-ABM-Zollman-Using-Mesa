@@ -140,7 +140,7 @@ def deviation_plot(Model):
         ax.legend(fontsize=8)
         fig.tight_layout()
 
-    except RuntimeError, ValueError:
+    except (RuntimeError, ValueError):
         pass
     
     solara.FigureMatplotlib(fig)

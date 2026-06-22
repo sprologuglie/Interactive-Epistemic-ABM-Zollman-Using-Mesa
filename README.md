@@ -155,7 +155,7 @@ The model supports three extensions from Frey & Šešelja (2020):
 ├── batch_run.py                    # Example batch run script (reproduce Zollman effect)
 ├── batch_run.ipynb                 # Notebook version of the batch run script
 │
-├── scripts/                        # Interactive dashboard model
+├── scripts/
 │   ├── model.py                    # Bandit model (full-featured)
 │   └── agent.py                    # Scientist agent
 │
@@ -209,7 +209,7 @@ Results can be exported as a `.zip` archive containing model metrics (CSV), agen
 
 ### Replication notebooks
 
-Open the notebooks in `replications/` with Jupyter. Each notebook is self-contained and imports the model from `batch_run_scripts/`. Read the notebook to see replications results.
+Open the notebooks in `replications/` with Jupyter. Read the notebook to see replications results.
 
 
 > ⚠️ Replication batch runs use 1000 iterations per parameter combination and may take several hours depending on hardware.
