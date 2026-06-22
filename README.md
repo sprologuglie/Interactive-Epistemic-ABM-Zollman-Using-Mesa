@@ -149,16 +149,15 @@ The model supports three extensions from Frey & Šešelja (2020):
 ## Repository structure
 
 ```
+├── interactive_model.py            # Solara interactive dashboard for single run
+├── interactive_model.ipynb         # Notebook version of the interactive dashboard
+│
+├── batch_run.py                    # Example batch run script (reproduce Zollman effect)
+├── batch_run.ipynb                 # Notebook version of the batch run script
+│
 ├── scripts/                        # Interactive dashboard model
 │   ├── model.py                    # Bandit model (full-featured)
-│   ├── agent.py                    # Scientist agent
-│   └── interactive_model.py        # Solara dashboard
-│
-├── batch_run/                      # Batch simulation scripts
-│   ├── batch_run_scripts/
-│   │   ├── model.py                # Bandit model (batch-optimised)
-│   │   └── agent.py                # Scientist agent
-│   └── batch_run.py                # Example batch run script
+│   └── agent.py                    # Scientist agent
 │
 ├── replications/                   # Replication notebooks
 │   ├── Zollman_replication.ipynb
@@ -175,10 +174,6 @@ The model supports three extensions from Frey & Šešelja (2020):
 ├── LICENSE
 └── requirements.txt
 ```
-
-**Two model versions:** the repository maintains two implementations of the model.
-The `scripts/` version powers the interactive dashboard and includes visualization-oriented features (convergence tracking, evidence aggregation, agent-level statistics).
-The `batch_run_scripts/` version is optimised for large-scale batch simulations, with a minimal DataCollector recording only convergence outcome and round.
 
 ---
 
@@ -199,7 +194,7 @@ pip install -r requirements.txt
 ### Interactive dashboard
 
 ```bash
-solara run scripts/interactive_model.py
+solara run interactive_model.py
 ```
 
 The dashboard opens in the browser and provides two views:
@@ -214,20 +209,16 @@ Results can be exported as a `.zip` archive containing model metrics (CSV), agen
 
 ### Replication notebooks
 
-Open the notebooks in `replications/` with Jupyter. Each notebook is self-contained and imports the model from `batch_run_scripts/`:
+Open the notebooks in `replications/` with Jupyter. Each notebook is self-contained and imports the model from `batch_run_scripts/`. Read the notebook to see replications results.
 
-```bash
-jupyter notebook replication/Zollman_replication.ipynb
-```
 
 > ⚠️ Replication batch runs use 1000 iterations per parameter combination and may take several hours depending on hardware.
 
 ### Batch run scripts
 
-`batch_run/batch_run.py` provides a configurable starting point for custom batch analyses. Results are saved as timestamped CSV files in `batch_run/outputs/`:
+`batch_run.py` provides a configurable starting point for custom batch analyses. Results are saved as timestamped CSV files in `batch_run/outputs/`:
 
 ```bash
-cd batch_run
 python batch_run.py
 ```
 
@@ -254,7 +245,7 @@ The test suite covers model initialisation, graph topologies, convergence logic,
 
 **Parameter mapping notes:**
 - `dynamic`: Frey & Šešelja use a boolean activating updates every 100 rounds. Equivalent setting: `dynamic=100`.
-- `theory_threshold`: Frey & Šešelja use a boolean mapped to a fixed value of 0.1. Here the parameter is a continuous float, enabling finer control.
+- `theory_threshold`: Frey & Šešelja use a boolean mapped to a fixed value of 0.1. Here the parameter is a continuous float, enabling finer control. Equivalent setting `theory_threshold=0.1`
 
 ---
 

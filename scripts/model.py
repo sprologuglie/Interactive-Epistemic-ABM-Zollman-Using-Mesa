@@ -30,6 +30,14 @@ def get_a_objective_probability(model):
 def get_b_objective_probability(model):
     return np.mean(list(a.b_objective for a in model.agents))
 
+def convergence_round(model):
+    return model.consensus_round 
+
+def correct_convergence(model):
+    if sum(1 for a in model.agents if a.state == "a") == model.num_agents:
+        return True
+    else: 
+        return False
 
 
 class Bandit(mesa.Model):
@@ -76,7 +84,7 @@ class Bandit(mesa.Model):
     
         # Instantiate DataCollector
         self.datacollector = mesa.DataCollector(
-            model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability},
+            model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability, "Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
             agent_reporters={"Belief_A": lambda a: a.a_expectations(), "Belief_B": lambda a: a.b_expectations(), "State": "state"}
         )
 

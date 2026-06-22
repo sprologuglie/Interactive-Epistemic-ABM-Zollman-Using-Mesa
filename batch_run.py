@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import datetime
 
-from batch_run_scripts.model import Bandit
+from scripts.model import Bandit
 
         
 ###                 BATCH RUNNER                    ###

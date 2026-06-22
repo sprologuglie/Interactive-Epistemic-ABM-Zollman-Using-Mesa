@@ -54,6 +54,8 @@ def test_datacollector():
     assert len(df) == 20
     assert "Avg. A expectation" in df.columns
     assert "Avg. B expectation" in df.columns
+    assert "Convergence Round" in df.columns
+    assert "Correct Convergence" in df.columns
 
 def test_consensus_round():
     model = Bandit(n=10, a_objective=0.9, b_objective=0.3, seed=42)
