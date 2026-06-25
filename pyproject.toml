@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "zollman-bandit"
+name = "epistemic_abm"
 version = "0.2.0"
 dependencies = [
     "altair==6.0.0", 
@@ -16,9 +16,6 @@ dependencies = [
     "solara==1.57.2"
 ]
 requires-python = ">=3.11"
-authors = {name = "Guglielmo Sproloquio", email = "guglielmosproloquio@gmail.com"}
-maintainers = {name = "Guglielmo Sproloquio", email = "guglielmosproloquio@gmail.com"}
-keywords = []
 description = "Agent-based model of epistemic networks (Zollman bandit) built on Mesa"
 readme = "README.md"
 license = "MIT"
