@@ -149,15 +149,17 @@ The model supports three extensions from Frey & Šešelja (2020):
 ## Repository structure
 
 ```
-├── interactive_model.py            # Solara interactive dashboard for single run
-├── interactive_model.ipynb         # Notebook version of the interactive dashboard
+├── src/                            # Model's scripts
+│   └── epistemic_abm/
+│       ├── __init__.py
+│       ├── agent.py
+│       ├── model.py
+│       └── app.py
+│
+├── interactive_model.py            # Entrypoint: solara run interactive_model.py
 │
 ├── batch_run.py                    # Example batch run script (reproduce Zollman effect)
 ├── batch_run.ipynb                 # Notebook version of the batch run script
-│
-├── scripts/
-│   ├── model.py                    # Bandit model (full-featured)
-│   └── agent.py                    # Scientist agent
 │
 ├── replications/                   # Replication notebooks
 │   ├── Zollman_replication.ipynb
@@ -168,6 +170,8 @@ The model supports three extensions from Frey & Šešelja (2020):
 │   ├── test_model.py               # Tests for interactive model
 │   └── test_batch_run_model.py     # Tests for batch run model
 │
+├── .github/workflows/ci.yml
+├── pyproject.toml
 ├── assets/                         # README images
 ├── CITATION.cff
 ├── CONTRIBUTING.md

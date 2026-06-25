@@ -1,5 +1,5 @@
 import pytest
-from scripts.model import Bandit
+from src.epistemic_abm.model import Bandit
 
 # Functions tests
 
@@ -46,6 +46,36 @@ def test_experiments_sum():
     assert a_1 + a_2 == model.experiments_results_a["trials"]
     assert b_1 + b_2 == model.experiments_results_b["trials"]
 
+def test_belief_update_math_pull_a():
+    model = Bandit(n=1, seed=42)
+    agent = model.agents[0]
+    assert len(list(agent.cell.neighborhood.agents)) == 0
+
+    a_alpha_before, a_beta_before = agent.priors["a_alpha"], agent.priors["a_beta"]
+    b_alpha_before, b_beta_before = agent.priors["b_alpha"], agent.priors["b_beta"]
+
+    agent.experiment_result = (1, 7, 10)
+    agent.update()
+
+    assert agent.priors["a_alpha"] == pytest.approx(a_alpha_before + 7)
+    assert agent.priors["a_beta"] == pytest.approx(a_beta_before + 3)
+    assert agent.priors["b_alpha"] == pytest.approx(b_alpha_before)
+    assert agent.priors["b_beta"] == pytest.approx(b_beta_before)
+
+def test_belief_update_math_pull_b():
+    model = Bandit(n=1, seed=7)
+    agent = model.agents[0]
+    b_alpha_before, b_beta_before = agent.priors["b_alpha"], agent.priors["b_beta"]
+    a_alpha_before, a_beta_before = agent.priors["a_alpha"], agent.priors["a_beta"]
+
+    agent.experiment_result = (2, 4, 10)
+    agent.update()
+
+    assert agent.priors["b_alpha"] == pytest.approx(b_alpha_before + 4)
+    assert agent.priors["b_beta"] == pytest.approx(b_beta_before + 6)
+    assert agent.priors["a_alpha"] == pytest.approx(a_alpha_before)
+    assert agent.priors["a_beta"] == pytest.approx(a_beta_before)
+
 def test_datacollector():
     model = Bandit(seed=42)
     for _ in range(20):
@@ -75,17 +105,27 @@ def test_graphs():
     with pytest.raises(ValueError):
         Bandit(n=5, graph="error", seed=42)
     
-def test_cycle():
-    cycle = Bandit(n=7, graph="cycle", seed=42)
-    assert len(list(cycle.grid.all_cells.cells)) == 7
+def test_complete_topology():
+    n = 7
+    model = Bandit(n=n, graph="complete", seed=42)
+    G = model.grid.G
+    assert G.number_of_edges() == n * (n - 1) // 2
+    assert all(deg == n - 1 for _, deg in G.degree())
 
-def test_complete():
-    complete = Bandit(n=7, graph="complete", seed=42)
-    assert len(list(complete.grid.all_cells.cells)) == 7
+def test_wheel_topology():
+    n = 7
+    model = Bandit(n=n, graph="wheel", seed=42)
+    G = model.grid.G
+    degrees = sorted(dict(G.degree()).values())
+    assert G.number_of_edges() == 2 * (n - 1)
+    assert degrees == [3] * (n - 1) + [n - 1]
 
-def test_wheel():
-    wheel = Bandit(n=7, graph="wheel", seed=42)
-    assert len(list(wheel.grid.all_cells.cells)) == 7
+def test_cycle_topology():
+    n = 7
+    model = Bandit(n=n, graph="cycle", seed=42)
+    G = model.grid.G
+    assert G.number_of_edges() == n
+    assert all(deg == 2 for _, deg in G.degree())
 
 def test_seed():
     model_1 = Bandit(seed=95)
@@ -111,6 +151,14 @@ def test_max_priors():
         assert a.priors["a_beta"] > 0 and a.priors["a_beta"] <= 10
         assert a.priors["b_beta"] > 0 and a.priors["b_beta"] <= 10
 
+
+def test_objectives_constant_when_features_off():
+    model = Bandit(n=8, a_objective=0.5, b_objective=0.5, seed=42)
+    for _ in range(200):
+        model.step()
+    for a in model.agents:
+        assert a.a_objective == pytest.approx(0.5)
+        assert a.b_objective == pytest.approx(0.5)
 
 def test_dynamic():
     model = Bandit(n=8, a_objective=0.5, b_objective=0.5, dynamic=1, seed=42)
