@@ -187,6 +187,7 @@ The model supports three extensions from Frey & Šešelja (2020):
 git clone https://github.com/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa
 cd Interactive-Epistemic-ABM-Zollman-Using-Mesa
 pip install -r requirements.txt
+pip install -e .
 ```
 
 **Requirements:** Python 3.11+, Mesa 3.x, Solara, NetworkX, NumPy, pandas, seaborn, matplotlib.
