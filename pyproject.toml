@@ -6,14 +6,13 @@ build-backend = "hatchling.build"
 name = "epistemic_abm"
 version = "0.2.0"
 dependencies = [
-    "altair==6.0.0", 
-    "matplotlib==3.10.8", 
-    "Mesa==3.3.1", 
-    "networkx==3.6.1", 
-    "numpy==2.4.2",
-    "pandas==3.0.0",
-    "seaborn==0.13.2", 
-    "solara==1.57.2"
+    "mesa>=3.3",
+    "networkx>=3.6",
+    "numpy>=2.0",
+    "pandas>=2.0",
+    "solara>=1.57.6",
+    "matplotlib>=3.10",
+    "altair>=6.0",
 ]
 requires-python = ">=3.11"
 description = "Agent-based model of epistemic networks (Zollman bandit) built on Mesa"
@@ -22,11 +21,15 @@ license = "MIT"
 
 [project.optional-dependencies]
 notebook = [
-    "jupyterlab==4.5.3", 
-    "notebook==7.5.3",
-    "pathlib==1.0.1"
+    "jupyterlab>=4.5.3", 
+    "notebook>=7.5.3",
+    "pathlib>=1.0.1",
+    "seaborn>=0.13.2",
 ]
 dev = ["pytest>=7.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/epistemic_abm"]

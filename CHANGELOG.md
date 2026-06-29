@@ -16,7 +16,6 @@ Versions correspond to GitHub releases and Zenodo snapshots.
 - `agent_reporters` in DataCollector (`Belief_A`, `Belief_B`, `State`) for per-agent time-series data
 - `convergence_status` model attribute storing the result of `Check_Convergence()` at each step, avoiding repeated calls with side effects
 - `seed` parameter exposed in dashboard controls
-- `interactive_model.ipynb` modified to match the new dashboard style and content
 
 **Batch run**
 - Timestamped output filenames in `save_df_csv` to prevent overwriting previous results
