@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import datetime
 
-from epistemic_abm import Bandit
+from epistemic_abm.model import Bandit
 
         
 ###                 BATCH RUNNER                    ###
