@@ -2,12 +2,21 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20268329.svg)](https://doi.org/10.5281/zenodo.20268329)
 
+### Description
 An agent-based replication package for epistemic network models in philosophy of science. Implements and replicates three key papers studying how the structure of scientific communities affects their collective ability to converge on correct theories, using a multi-armed bandit framework. Includes an interactive Solara dashboard for model exploration and batch run scripts for statistical analysis.
 
-**No install dashboard runner with Binder**
+### HuggingFaceSpaces App 
+You can run the model dashboard in a dedicated HuggingFaceSpaces app.
+Remember to press **RESTART** before every new run to apply the parameters changes.
+
+[![HuggingFace](https://img.shields.io/badge/huggingface-%23FFD21E.svg?style=for-the-badge&logo=huggingface&logoColor=white)](https://huggingface.co/spaces/sprolo-g/Zollman-bandit-interactive)
+
+
+### No install dashboard runner with Binder
+If you prefer you can run the dashboard or batch run the model on a Jupiter notebook trough Binder without installing the package locally.
+
 [![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa/main?urlpath=lab/tree/interactive_model.ipynb)
 
----
 
 ## Dashboard
 
@@ -19,8 +28,6 @@ An agent-based replication package for epistemic network models in philosophy of
 
 *Agent Analytics tab: per-agent belief table, diversity metrics, and belief distribution.*
 
----
-
 ## Batch run
 
 ![Batch Run - Correct convergence results](assets/batch_run_correct_convergence.png)
@@ -30,8 +37,6 @@ An agent-based replication package for epistemic network models in philosophy of
 ![Dashboard — Agent Analytics tab](assets/batch_run_convergence_round.png)
 
 *An example of a plot with convergence speed of different max priors values per graph type*
-
----
 
 ## Replicated papers
 
