@@ -55,6 +55,7 @@ class Bandit(mesa.Model):
             dynamic = None,
             criticism = None,
             inertia = 0,
+            batch_mode = False,
             seed = None
                     ):
 
@@ -87,7 +88,20 @@ class Bandit(mesa.Model):
             model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability, "Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
             agent_reporters={"Belief_A": lambda a: a.a_expectations(), "Belief_B": lambda a: a.b_expectations(), "State": "state"}
         )
-
+        if batch_mode:
+            self.datacollector = mesa.DataCollector(
+                model_reporters={"Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
+                # nessun agent_reporter: risparmia 30 valori per step per run
+            )
+        else:
+            self.datacollector = mesa.DataCollector(
+                model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability, "Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
+                agent_reporters={
+                    "Belief_A": lambda a: a.a_expectations(),
+                    "Belief_B": lambda a: a.b_expectations(),
+                    "State": "state"
+                }
+            )
         #Create dictionaries for total experiments results
         self.experiments_results_a = {
             "successes": 0,
@@ -197,3 +211,7 @@ class Bandit(mesa.Model):
 
         self.round_counter += 1
         self.get_convergence_round()
+
+        if ((not self.dynamic) and self.convergence_status != 0) or (self.dynamic and self.convergence_status == 1):
+            if self.round_counter > (self.consensus_round + 500):
+                self.running = False

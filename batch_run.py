@@ -21,6 +21,7 @@ parameters_batch_run = {
         "criticism" : None,
         "theory_threshold" : 0,
         "inertia" : 0,
+        "batch_mode": True,
         "seed" : None
     }
 
