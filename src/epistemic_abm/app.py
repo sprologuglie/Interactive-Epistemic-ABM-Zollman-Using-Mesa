@@ -1,20 +1,16 @@
-###                 APP                 ###
-
-import solara
-import solara.lab
-from mesa.visualization import (
-    Slider,
-    SolaraViz,
-    make_space_component
-)
-from mesa.visualization.components import AgentPortrayalStyle
-from mesa.visualization.utils import update_counter
-from matplotlib.figure import Figure
-import networkx as nx
-import numpy as np
 import io
 import json
 import zipfile
+
+import networkx as nx
+import numpy as np
+import solara
+import solara.lab
+from matplotlib.figure import Figure
+from mesa.visualization import Slider, SolaraViz, make_space_component
+from mesa.visualization.components import AgentPortrayalStyle
+from mesa.visualization.utils import update_counter
+
 from .model import Bandit
 
 

@@ -171,19 +171,17 @@ class Scientist(FixedAgent):
         """Slightly modify the objective values if neighbors provide more covincing evidence for the competing hypothesis"""    
         if self.experiment_result is None:
             return
-        pull, success, trial = self.experiment_result
+        pull, _, _ = self.experiment_result
 
         for neighbor in self.cell.neighborhood.agents:
             if neighbor.experiment_result is None:
                 continue
             neigh_pull, neigh_success, neigh_trial = neighbor.experiment_result
 
-            if pull == 1:
-                if neigh_pull != pull and neigh_success / neigh_trial > self.b_expectations:
-                    self.a_objective += (1- self.a_objective) / 1000
+            if pull == 1 and neigh_pull != pull and neigh_success / neigh_trial > self.b_expectations:
+                self.a_objective += (1- self.a_objective) / 1000
 
-            elif pull == 2:
-                if neigh_pull != pull and neigh_success / neigh_trial > self.a_expectations:
+            elif pull == 2 and neigh_pull != pull and neigh_success / neigh_trial > self.a_expectations:
                     self.b_objective += (0 - self.b_objective) / 1000
     
     def clean_results(self):

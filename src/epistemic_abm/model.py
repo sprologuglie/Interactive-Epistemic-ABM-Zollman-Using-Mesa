@@ -1,9 +1,12 @@
 from __future__ import annotations
-import mesa
-from mesa.discrete_space import Network
-import numpy as np
-import networkx as nx
+
 from typing import Literal
+
+import mesa
+import networkx as nx
+import numpy as np
+from mesa.discrete_space import Network
+
 from .agent import Scientist
 
 ###                 MODEL                   ####
