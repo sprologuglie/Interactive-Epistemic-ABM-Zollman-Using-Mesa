@@ -1,65 +1,93 @@
+from __future__ import annotations
 import mesa
 from mesa.discrete_space import Network
 import numpy as np
 import networkx as nx
+from typing import Literal
 from .agent import Scientist
 
 ###                 MODEL                   ####
      
-def count_belief_a(model):
-    """Funcion for counting the average expectation of a between agents"""
-    agents_a_exp = [agent.priors["a_alpha"] / 
-            (agent.priors ["a_alpha"] + agent.priors ["a_beta"]) for agent in model.agents]
-    ma = np.mean(agents_a_exp)
-
-    return ma
+def _count_belief_a(model):
+    """Average expected success rate of theory A across all agents."""
+    return np.mean([agent.a_expectations for agent in model.agents])
 
        
-def count_belief_b(model):
-    """Function for counting the average experctation of b between agents"""
-    agents_b_exp = [agent.priors["b_alpha"] / 
-            (agent.priors ["b_alpha"] + agent.priors ["b_beta"]) for agent in model.agents]
-    mb = np.mean(agents_b_exp)
-
-    return mb
+def _count_belief_b(model):
+    """Average expected success rate of theory B across all agents."""
+    return np.mean([agent.b_expectations for agent in model.agents])
 
 
-def get_a_objective_probability(model):
+def _get_a_objective_probability(model):
     return np.mean([a.a_objective for a in model.agents]) 
 
-def get_b_objective_probability(model):
-    return np.mean(list(a.b_objective for a in model.agents))
+def _get_b_objective_probability(model):
+    return np.mean([a.b_objective for a in model.agents])
 
-def convergence_round(model):
+def _convergence_round(model):
     return model.consensus_round 
 
-def correct_convergence(model):
-    if sum(1 for a in model.agents if a.state == "a") == model.num_agents:
-        return True
-    else: 
-        return False
+def _correct_convergence(model):
+    return sum(1 for a in model.agents if a.state == "a") == model.num_agents
 
 
 class Bandit(mesa.Model):
-    """Model"""
+    """Epistemic Bandit model of scientific inquiry in a network of agents.
+
+    Implements the Zollman (2010) bandit framework: agents choose between
+    two theories (A and B) by running experiments and sharing evidence with
+    their network neighbours.
+    """
 
     def __init__(
-            self, 
-            n=10,
-            a_objective = .5, 
-            b_objective = .499, 
-            max_priors = 4,
-            graph = "complete",
-            theory_threshold = 0,
-            step_pulls = 1000,
-            dynamic = None,
-            criticism = None,
-            inertia = 0,
-            batch_mode = False,
-            seed = None
-                    ):
+        self,
+        n: int = 10,
+        a_objective: float = 0.5,
+        b_objective: float = 0.499,
+        max_priors: float = 4,
+        graph: Literal["complete", "wheel", "cycle"] = "complete",
+        theory_threshold: float = 0,
+        step_pulls: int = 1000,
+        dynamic: int | None = None,
+        criticism: bool | None = None,
+        inertia: int = 0,
+        batch_mode: bool = False,
+        seed: int | None = None,
+    ) -> None:
+        """Initialise the Epistemic Bandit model.
 
-        super().__init__(seed=seed)
+        Parameters
+        ----------
+        n : int
+            Number of scientist agents (default 10).
+        a_objective : float
+            True success rate of theory A; must be >= b_objective (default 0.5).
+        b_objective : float
+            True success rate of theory B (default 0.499).
+        max_priors : float
+            Upper bound for initial Beta prior parameters, drawn uniformly
+            from (0, max_priors) for each agent (default 4).
+        graph : {"complete", "wheel", "cycle"}
+            Network topology connecting agents (default "complete").
+        theory_threshold : float
+            Minimum belief gap required before an agent switches theories
+            (default 0).
+        step_pulls : int
+            Number of binomial draws per experiment per step (default 1000).
+        dynamic : int | None
+            If set, objective probabilities shift toward their limits every
+            ``dynamic`` rounds. ``None`` disables this feature (default None).
+        criticism : bool | None
+            If ``True``, enables critical interaction between neighbouring
+            agents (default None).
+        inertia : int
+            Rounds an agent must prefer the alternative theory before
+            switching (default 0).
+        seed : int | None
+            Random seed for reproducibility (default None).
+        """
+
+        super().__init__(rng=seed)
         self.num_agents = n
         self.a_objective = a_objective
         self.b_objective = b_objective
@@ -70,7 +98,9 @@ class Bandit(mesa.Model):
         self.seed = seed
         self.max_priors = max_priors
         self.inertia = inertia
-        #Defining the graph type
+        self.theory_threshold = theory_threshold
+        
+        # Defining the graph type
         if graph == "complete":
             self.grid = Network(nx.complete_graph(n), random=self.random)
         elif graph == "wheel":
@@ -84,24 +114,14 @@ class Bandit(mesa.Model):
             model=self, n=n, cell=list(self.grid.all_cells.cells), a_objective = self.a_objective, b_objective = self.b_objective, max_priors = max_priors, theory_threshold = theory_threshold, inertia = inertia, step_pulls = step_pulls, dynamic = dynamic)
     
         # Instantiate DataCollector
-        self.datacollector = mesa.DataCollector(
-            model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability, "Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
-            agent_reporters={"Belief_A": lambda a: a.a_expectations(), "Belief_B": lambda a: a.b_expectations(), "State": "state"}
-        )
         if batch_mode:
-            self.datacollector = mesa.DataCollector(
-                model_reporters={"Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
-                # nessun agent_reporter: risparmia 30 valori per step per run
-            )
+            self.datacollector = mesa.DataCollector(model_reporters={"Convergence Round": _convergence_round, "Correct Convergence": _correct_convergence})
         else:
             self.datacollector = mesa.DataCollector(
-                model_reporters={"Avg. A expectation": count_belief_a, "A objective probability": get_a_objective_probability, "Avg. B expectation": count_belief_b, "B objective probability": get_b_objective_probability, "Convergence Round": convergence_round, "Correct Convergence": correct_convergence},
-                agent_reporters={
-                    "Belief_A": lambda a: a.a_expectations(),
-                    "Belief_B": lambda a: a.b_expectations(),
-                    "State": "state"
-                }
+                model_reporters={"Avg. A expectation": _count_belief_a, "A objective probability": _get_a_objective_probability, "Avg. B expectation": _count_belief_b, "B objective probability": _get_b_objective_probability, "Convergence Round": _convergence_round, "Correct Convergence": _correct_convergence},
+                agent_reporters={"Belief_A": "a_expectations", "Belief_B": "b_expectations", "State": "state"}
             )
+
         #Create dictionaries for total experiments results
         self.experiments_results_a = {
             "successes": 0,
@@ -148,6 +168,8 @@ class Bandit(mesa.Model):
         }
 
         for a in self.agents:
+            if a.experiment_result is None:
+                continue
             action, success, trial = a.experiment_result
             if action == 1:
                 self.experiments_round_results_a["successes"] += success
@@ -173,13 +195,13 @@ class Bandit(mesa.Model):
                 self.consensus_round = None
             self.check_previous_conv = 1
             return 1
-        if sum(1 for a in self.agents if a.state == "b") == self.num_agents:
+        elif sum(1 for a in self.agents if a.state == "b") == self.num_agents:
             if self.consensus_round and self.check_previous_conv != 2:
                 self.consensus_round = None
             self.check_previous_conv = 2
             return 2
         else:
-            self.consensus_round = None 
+            self.consensus_round = None
             self.check_previous_conv = 0
             return 0
     
@@ -212,6 +234,5 @@ class Bandit(mesa.Model):
         self.round_counter += 1
         self.get_convergence_round()
 
-        if ((not self.dynamic) and self.convergence_status != 0) or (self.dynamic and self.convergence_status == 1):
-            if self.round_counter > (self.consensus_round + 500):
-                self.running = False
+        if (((not self.dynamic) and self.convergence_status != 0) or (self.dynamic and self.convergence_status == 1)) and self.round_counter > (self.consensus_round + 500):
+            self.running = False

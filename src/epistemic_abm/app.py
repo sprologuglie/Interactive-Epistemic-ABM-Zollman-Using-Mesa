@@ -130,8 +130,6 @@ def deviation_plot(Model):
         ax.plot("A objective probability", data=dev, label="A objective probability", linestyle= "dashed")
         ax.plot("Avg. B expectation", data=dev, label="Avg. B expectation")
         ax.plot("B objective probability", data=dev, label="B objective probability", linestyle = "dashed")
-        ax.get_label()
-        ax.legend()
         fig.align_xlabels()
         ax.set_xlabel("Round")
         ax.set_ylabel("Expected success rate")
@@ -263,16 +261,17 @@ def experiment_stats(model):
 def agents_table(model):
     update_counter.get()
 
-    rows = ""
-    for agent in model.agents:
-        rows += f"""<tr>
+    rows = "".join(
+        f"""<tr>
         <td  style="text-align:center; padding: 6px 12px;">{agent.unique_id}</td>
         <td  style="text-align:center; padding: 6px 12px;">{agent.state.upper()}</td>
-        <td  style="text-align:center; padding: 6px 12px;">{agent.a_expectations():.3f}</td>
-        <td  style="text-align:center; padding: 6px 12px;">{agent.b_expectations():.3f}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.a_expectations:.3f}</td>
+        <td  style="text-align:center; padding: 6px 12px;">{agent.b_expectations:.3f}</td>
         <td  style="text-align:center; padding: 6px 12px;">{agent.a_objective:.3f}</td>
         <td  style="text-align:center; padding: 6px 12px;">{agent.b_objective:.3f}</td>
         </tr>"""
+        for agent in model.agents
+    )
 
     html = f"""
     <div style="font-family: sans-serif; font-size: 0.9rem; margin: 8px 0; max-height; 500px; overflow-y: auto;">
@@ -306,8 +305,8 @@ def aggregate_metrics(model):
     update_counter.get()
 
     # Calcolo varianze
-    beliefs_a = [agent.a_expectations() for agent in model.agents]
-    beliefs_b = [agent.b_expectations() for agent in model.agents]
+    beliefs_a = [agent.a_expectations for agent in model.agents]
+    beliefs_b = [agent.b_expectations for agent in model.agents]
     variance_a = np.var(beliefs_a)
     variance_b = np.var(beliefs_b)
 
@@ -357,8 +356,8 @@ def belief_histogram(model):
     fig = Figure()
     ax = fig.subplots()
 
-    beliefs_a = [agent.a_expectations() for agent in model.agents]
-    beliefs_b = [agent.b_expectations() for agent in model.agents]
+    beliefs_a = [agent.a_expectations for agent in model.agents]
+    beliefs_b = [agent.b_expectations for agent in model.agents]
 
     ax.hist(beliefs_a, bins=33, range=(0, 1),
             color="#2D6A4F", alpha=0.7, label="Belief in A")
@@ -404,8 +403,8 @@ def generate_results_zip(model):
             "step_pulls": model.step_pulls,
             "dynamic": model.dynamic,
             "criticism": model.criticism,
-            "inertia": list(model.agents)[0].inertia,
-            "theory_threshold": list(model.agents)[0].theory_threshold,
+            "inertia": model.inertia,
+            "theory_threshold": model.theory_threshold,
             "seed": model.seed,
             "total_rounds": model.round_counter,
         }
@@ -424,7 +423,7 @@ def generate_results_zip(model):
                model.experiments_results_b["trials"]
                if model.experiments_results_b["trials"] > 0 else 0)
 
-        summary = f"""Epistemic Bandit Model — Run Summary
+        Summary = f"""Epistemic Bandit Model — Run **Summary**
             ======================================
             Total rounds:       {model.round_counter}
             Convergence:        {conv_labels[model.convergence_status]}
@@ -434,7 +433,7 @@ def generate_results_zip(model):
             Empirical p(A):     {eva:.4f}
             Empirical p(B):     {evb:.4f}
             """
-        zf.writestr("summary.txt", summary)
+        zf.writestr("Summary.txt", Summary)
 
     buffer.seek(0)
     return buffer.read()
@@ -455,34 +454,118 @@ SpaceViz = make_space_component(
 def Page():
     solara.Title("Epistemic Bandit Model")
     solara.lab.theme.themes.light.primary = "#2D6A4F"
-    solara.lab.theme.themes.dark.primary  = "#2D6A4F" 
+    solara.lab.theme.themes.dark.primary = "#2D6A4F"
     solara.Style("""
-        /* Nascondiamo il testo numerico originale (0, 1, 2) ma teniamo il pulsante */
-        .v-tab {
-            font-size: 0 !important;
-        }
-        
-        /* Definiamo il nuovo nome per il Tab 0 */
-        .v-tab:nth-child(2)::after {
-            content: "Model";
-            font-size: 14px !important; /* Ripristiniamo la dimensione del font */
-            text-transform: uppercase;
-            font-weight: 500;
-        }
+    .v-tab {
+        font-size: 0 !important;
+    }
+    .v-tab:nth-child(2)::after {
+        content: "Model";
+        font-size: 14px !important;
+        text-transform: uppercase;
+        font-weight: 500;
+    }
+    .v-tab:nth-child(3)::after {
+        content: "Agents";
+        font-size: 14px !important;
+        text-transform: uppercase;
+        font-weight: 500;
+    }
+    """)
 
-        /* Definiamo il nuovo nome per il Tab 1 */
-        .v-tab:nth-child(3)::after {
-            content: "Agents";
-            font-size: 14px !important;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-    """)    
+    # --- Header ---
+    solara.Markdown("""
+# Epistemic Bandit Model
+**Does more communication always help science?** Not according to Zollman (2007).
 
-    viz = SolaraViz(
-    epistemic_ABM,
-    model_params=model_params,
-    components=[SpaceViz, (deviation_plot, 0), (agent_stats, 0), (experiment_stats, 0), (belief_histogram, 1), (agents_table, 1), (aggregate_metrics, 1)],
-    name="Epistemic Bandit ABM")
+This model simulates a network of Bayesian scientists choosing between two research
+programmes: one objectively better (A), one slightly worse (B). Depending on the
+**network topology**, communities can lock onto the wrong theory even when every agent
+reasons correctly.
 
-    
+🟢 Green = pursuing A (correct) - 🔴 Red = pursuing B
+
+""")
+
+    # --- Collapsible panels ---
+    with solara.Details("▶ How to run"):
+        solara.Markdown("""
+1. Set your parameters in the left sidebar and press **Restart** to update parameters
+2. Press **Play** to run continuously, or **Step** for manual control
+3. Watch the network: node colours update as agents switch theories
+4. The status badge (✅ / ❌ / ⏳) updates when consensus is reached
+5. Switch **Graph** topology and reset to compare outcomes side by side
+6. Use **Download Results zip** to export model metrics, agent data, and run parameters
+""")
+
+    with solara.Details("📖 Parameter guide"):
+        solara.Markdown("""
+| Parameter | What it controls |
+|---|---|
+| **Graph** | Network topology. *Cycle* preserves diversity longest; *complete* shares all evidence instantly and often locks onto B; *wheel* is intermediate |
+| **n** | Number of scientist-agents |
+| **Objective prob. A / B** | True success rates of each theory. Keep A slightly above B to replicate Zollman's core result |
+| **Max prior beliefs range** | Prior strength (Beta distribution). Low = open-minded agents; high = strong initial convictions |
+| **Pulls per step** | Evidence generated per round. High values overwhelm priors quickly |
+| **Dynamic update (rounds)** | Periodically shifts objective probabilities towards 1 or 0: models a changing research landscape |
+| **Critical interaction** | Agents also share *negative* results; slows false consensus |
+| **Theory change threshold** | Minimum belief gap required to switch theory: models paradigm inertia |
+| **Inertia** | Rounds an agent waits before switching even after updating beliefs |
+| **Seed** | Fix for reproducible runs; *None* = random |
+""")
+
+    with solara.Details("💡 Suggested configurations"):
+        solara.Markdown("""
+| Scenario | graph | n | Pulls/step | Other | What to observe |
+|---|---|---|---|---|---|
+| **Complete is too fast** | complete | 10 | 1000 | defaults | Community often locks onto B on early evidence despite A being better |
+| **Cycle preserves truth** | cycle | 10 | 1000 | defaults | Slower convergence, but usually reaches A |
+| **Small evidence** | any | any | 1 | max_priors=100 | Experiement with communities which |
+| **Stubborn agents** | any | any | 1000 | inertia=10, threshold=0.05 | Watch how resistance to change affects group epistemics |
+| **Dogmatic agents** | complete | 10 | 1000 | max_priors=10000 | increasing max_priors make agents more resistant to change |
+""")
+
+    with solara.Details("▶ References"):
+            solara.Markdown("""
+- Zollman, *The Epistemic Benefit of Transient Diversity* (Erkenntnis, 2010) 
+    **Summary**: Using a formal model of inquiry, Zollman argues that epistemic communities benefits from transient diversity: maintaining some diversity early on can prevent premature convergence on the wrong view, while eventual convergence remains possible once evidence accumulates.
+    **DOI**: 10.1007/s10670-009-9194-6
+
+- Rosenstock, Bruner & O’Connor, *In Epistemic Networks, Is Less Really More?* (Philosophy of Science, 2017) 
+    **Summary**: They show that Zollman's “less connectivity can be better” results in epistemic network models are not robust across parameter changes. Reduced connectivity helps mainly in a narrow regime where learning is especially difficult (small groups, small samples, tiny performance differences).
+    **DOI**: 10.1086/690717
+
+- Frey & Šešelja, *Robustness and Idealizations in Agent-Based Models of Scientific Interaction* (BJPS, 2020) 
+    **Summary**: They extend Zollman-style agent-based models of scientific inquiry by relaxing key idealizations (e.g., allowing dynamic “epistemic success,” incorporating criticism, inertia, and indifference thresholds). They argue that whether network connectedness helps or harms collective inquiry is context and assumption-dependent, so extensive robustness checks are required before drawing real-world lessons.
+    **DOI**: 10.1093/bjps/axy039zip** to export model metrics, agent data, and run parameters
+        """)
+
+    # --- Main simulation ---
+    SolaraViz(
+        epistemic_ABM,
+        model_params=model_params,
+        components=[
+            SpaceViz,
+            (deviation_plot, 0),
+            (agent_stats, 0),
+            (experiment_stats, 0),
+            (belief_histogram, 1),
+            (agents_table, 1),
+            (aggregate_metrics, 1),
+        ],
+        name="Epistemic Bandit ABM",
+    )
+
+    # --- Footer ---
+    solara.Markdown("""
+---
+**References:** 
+
+1. Zollman, K. J. (2007). *The Communication Structure of Epistemic Communities.* Philosophy of Science, 74(5)
+
+2. Rosenstock, Bruner & O’Connor, *In Epistemic Networks, Is Less Really More?* (Philosophy of Science, 2017)
+
+3. Frey & Šešelja, *Robustness and Idealizations in Agent-Based Models of Scientific Interaction* (BJPS, 2020)
+
+[GitHub](https://github.com/sprologuglie/Interactive-Epistemic-ABM-Zollman-Using-Mesa)
+""")

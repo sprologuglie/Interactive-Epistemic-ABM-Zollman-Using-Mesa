@@ -121,6 +121,8 @@ The model supports three extensions from Frey & Šešelja (2020):
 
 **Rational inertia** (`inertia`): agents require n = `inertia` consecutive rounds of counter-evidence before switching theories, modelling a conservative disposition toward established research programs.
 
+**Switch threshold** (`theory_threshold`): to switch theory, the new theory expectations need to be grater than the expectation of the old theory, with NEW_exp + `theory_threshold` > OLD_exp
+
 ---
 
 ## Parameters
@@ -141,13 +143,17 @@ The model supports three extensions from Frey & Šešelja (2020):
 
 ### Parameter interactions
 
+**`graph type`** the more a graph is connected the faster evidence spreads and convince agents.
+
 **`a_objective` and `b_objective`** determine the *difficulty* of the problem. When the two values are close (e.g. 0.5 vs 0.499), agents struggle to distinguish the theories and convergence is slow and uncertain. Larger differences (e.g. 0.6 vs 0.4) make convergence faster and reduce the relevance of network structure.
 
 **`step_pulls`** controls the reliability of each experimental round. More pulls reduce sampling noise, which according to Rosenstock et al. (2017) weakens the Zollman effect: when evidence is very reliable, network structure matters less.
 
-**`theory_threshold` and `inertia`** both introduce conservatism but through different mechanisms. `theory_threshold` requires a *minimum advantage* before switching; `inertia` requires a *sustained advantage* over multiple rounds. They can be combined.
+**`max_priors`** higher max priors value generally produce more "dogmatic" agents, which need more evidence to switch theory. This slows down the convergence time.
 
-**`dynamic` and `criticism`** (Frey & Šešelja extensions). Both modify the objective probalities of A and B approaching 1 and 0 respectively. They follow the intuition that as research continues the truth become easier to distinguish. `dynamic=100` replicates their setting of objective updates every 100 rounds.
+**`dynamic` and `criticism`** (Frey & Šešelja extensions) both modify the objective probalities of A and B approaching 1 and 0 respectively. They follow the intuition that as research continues the truth become easier to distinguish. `dynamic=100` replicates their setting of objective updates every 100 rounds.
+
+**`theory_threshold` and `inertia`** (Frey & Šešelja extensions) both introduce conservatism but through different mechanisms. `theory_threshold` requires a *minimum advantage* before switching; `inertia` requires a *sustained advantage* over multiple rounds.
 
 ---
 
